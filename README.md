@@ -20,18 +20,26 @@ Modern website and patient management system for Nan Estetik aesthetic clinic.
 - **Backend**: Next.js API Routes
 - **Database**: PostgreSQL + Prisma ORM
 - **Auth**: NextAuth.js
+- **Package Manager**: pnpm (fast, efficient, secure)
 
 ## 🚀 Getting Started
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Run development server
-npm run dev
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000)
+
+## 📖 Documentation
+
+- **[SETUP.md](SETUP.md)** - Complete setup and installation guide
+- **[INSTRUCTIONS.md](INSTRUCTIONS.md)** - Development rules and best practices
+- **[SECURITY.md](SECURITY.md)** - Security guidelines
+- **[STATUS.md](STATUS.md)** - Current project status
 
 ## 📁 Project Structure
 

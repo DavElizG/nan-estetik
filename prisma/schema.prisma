@@ -1,0 +1,131 @@
+/**
+ * Configuración del esquema de base de datos para Nan Estetik
+ * 
+ * Este archivo define todos los modelos de datos para:
+ * - Autenticación de usuarios (administradores)
+ * - Gestión de pacientes
+ * - Bitácoras de tratamientos y consultas
+ * - Historial de procedimientos
+ */
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/**
+ * Modelo User - Administradores del sistema
+ * Solo personal autorizado puede acceder al área administrativa
+ */
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  password      String    // Hash bcrypt
+  role          UserRole  @default(ADMIN)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relaciones
+  patientRecords PatientRecord[]
+  
+  @@map("users")
+}
+
+/**
+ * Modelo Patient - Información de pacientes
+ */
+model Patient {
+  id              String    @id @default(cuid())
+  // Información personal
+  firstName       String
+  lastName        String
+  email           String?
+  phone           String
+  dateOfBirth     DateTime?
+  gender          Gender?
+  address         String?
+  
+  // Información médica básica
+  allergies       String?   // Texto libre para alergias
+  medicalHistory  String?   // Historial médico relevante
+  
+  // Metadata
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relaciones
+  records         PatientRecord[]
+  
+  @@map("patients")
+  @@index([lastName, firstName])
+  @@index([phone])
+}
+
+/**
+ * Modelo PatientRecord - Bitácoras de consultas y tratamientos
+ * Cada entrada representa una visita o procedimiento
+ */
+model PatientRecord {
+  id              String    @id @default(cuid())
+  
+  // Relaciones
+  patientId       String
+  patient         Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  userId          String    // Quien realizó el registro
+  user            User      @relation(fields: [userId], references: [id])
+  
+  // Información de la consulta/tratamiento
+  date            DateTime  @default(now())
+  type            RecordType
+  treatmentName   String    // Nombre del tratamiento o consulta
+  
+  // Detalles del procedimiento
+  description     String    // Descripción detallada
+  observations    String?   // Observaciones adicionales
+  productsUsed    String?   // Productos utilizados (JSON string)
+  
+  // Seguimiento
+  nextAppointment DateTime? // Próxima cita recomendada
+  
+  // Archivos adjuntos (URLs)
+  beforePhotos    String?   // JSON array de URLs
+  afterPhotos     String?   // JSON array de URLs
+  documents       String?   // JSON array de URLs de documentos
+  
+  // Metadata
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@map("patient_records")
+  @@index([patientId])
+  @@index([date])
+  @@index([type])
+}
+
+/**
+ * Enums
+ */
+
+enum UserRole {
+  ADMIN       // Administrador completo
+  STAFF       // Personal con acceso limitado
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum RecordType {
+  CONSULTATION    // Consulta inicial
+  TREATMENT       // Tratamiento estético
+  FOLLOW_UP       // Seguimiento
+  EMERGENCY       // Atención de emergencia
+}
