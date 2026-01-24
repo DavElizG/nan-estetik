@@ -96,7 +96,7 @@ export function Services() {
     <section
       id="servicios"
       ref={sectionRef}
-      className="py-20 md:py-32 bg-white overflow-hidden"
+      className="pt-16 pb-8 bg-white overflow-hidden"
     >
       <div className="container-custom mb-8">
         <div className="text-center">
@@ -112,7 +112,7 @@ export function Services() {
       </div>
 
       {/* Contenedor de scroll horizontal */}
-      <div ref={horizontalRef} className="relative min-h-screen flex items-center pt-4 pb-20">
+      <div ref={horizontalRef} className="relative min-h-screen flex items-center">
         <div
           ref={cardsContainerRef}
           className="flex gap-20 w-full"
