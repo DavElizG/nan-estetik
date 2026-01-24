@@ -11,7 +11,6 @@ import { Hero } from '@/components/sections/hero';
 import { Services } from '@/components/sections/services';
 import { About } from '@/components/sections/about';
 import { GalleryIntro } from '@/components/sections/gallery-intro';
-import { Gallery } from '@/components/sections/gallery';
 import { Testimonials } from '@/components/sections/testimonials';
 import { Contact } from '@/components/sections/contact';
 import { Navbar } from '@/components/layout/navbar';
@@ -26,7 +25,6 @@ export default function HomePage() {
         <About />
         <Services />
         <GalleryIntro />
-        <Gallery />
         <Testimonials />
         <Contact />
       </main>
