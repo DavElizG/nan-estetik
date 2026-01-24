@@ -2,26 +2,31 @@
  * Hero Section
  * 
  * Sección principal con:
- * - Video o imagen de fondo
+ * - Parallax en múltiples capas
  * - Título y CTA principal
- * - Animaciones con GSAP
+ * - Animaciones avanzadas con GSAP
  */
 
 'use client';
 
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ChevronDown } from 'lucide-react';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Animaciones de entrada con GSAP
     const ctx = gsap.context(() => {
+      // Animaciones de entrada
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
       tl.from(titleRef.current, {
@@ -48,6 +53,43 @@ export function Hero() {
           },
           '-=0.4'
         );
+
+      // Parallax en el background al hacer scroll
+      gsap.to(bgRef.current, {
+        yPercent: 30,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+
+      // Parallax en el overlay
+      gsap.to(overlayRef.current, {
+        opacity: 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+
+      // Parallax del contenido (se mueve más rápido que el fondo)
+      gsap.to([titleRef.current, subtitleRef.current, ctaRef.current], {
+        yPercent: 50,
+        opacity: 0,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
     }, heroRef);
 
     return () => ctx.revert();
@@ -59,13 +101,20 @@ export function Hero() {
       ref={heroRef}
       className="relative h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Background con gradiente */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-500 to-accent-rose z-0">
-        {/* Overlay oscuro para mejorar legibilidad */}
-        <div className="absolute inset-0 bg-black/30" />
+      {/* Background con parallax - capa más lenta */}
+      <div 
+        ref={bgRef}
+        className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-500 to-accent-rose z-0 will-change-transform"
+        style={{ height: '120vh', top: '-10vh' }}
+      >
+        {/* Overlay con parallax - capa intermedia */}
+        <div 
+          ref={overlayRef}
+          className="absolute inset-0 bg-black/30 will-change-transform" 
+        />
       </div>
 
-      {/* Contenido */}
+      {/* Contenido con parallax - capa más rápida */}
       <div className="relative z-10 container-custom text-center text-white">
         <h1
           ref={titleRef}
@@ -92,7 +141,7 @@ export function Hero() {
       {/* Indicador de scroll */}
       <a
         href="#nosotros"
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white animate-bounce"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white animate-bounce z-10"
         aria-label="Scroll down"
       >
         <ChevronDown size={32} />

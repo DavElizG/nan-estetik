@@ -72,6 +72,18 @@ html.lenis {
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* Optimización para parallax - mejora el rendimiento */
+  .parallax-item {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* Prevenir overflow en secciones con parallax horizontal */
+  .horizontal-scroll-section {
+    overflow-x: hidden;
+  }
 }
 
 /* Componentes reutilizables */

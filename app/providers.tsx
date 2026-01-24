@@ -7,7 +7,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { SmoothScrollProvider } from '@/components/providers/smooth-scroll-provider';
+import { LenisProvider } from '@/components/providers/lenis-provider';
 
 interface ProvidersProps {
   readonly children: ReactNode;
@@ -15,8 +15,8 @@ interface ProvidersProps {
 
 export function Providers({ children }: Readonly<ProvidersProps>) {
   return (
-    <SmoothScrollProvider>
+    <LenisProvider>
       {children}
-    </SmoothScrollProvider>
+    </LenisProvider>
   );
 }

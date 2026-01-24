@@ -2,7 +2,7 @@
  * Contact Section
  * 
  * Sección de contacto con:
- * - Formulario de contacto
+ * - Formulario de contacto con parallax
  * - Información de ubicación
  * - Integración con WhatsApp
  */
@@ -19,20 +19,49 @@ gsap.registerPlugin(ScrollTrigger);
 export function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const infoRef = useRef<HTMLDivElement>(null);
+  const decorativeRef = useRef<HTMLDivElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // Parallax del formulario
       gsap.from(formRef.current, {
         scrollTrigger: {
           trigger: formRef.current,
-          start: 'top 80%',
+          start: 'top 90%',
           toggleActions: 'play none none reverse',
         },
         x: -50,
         opacity: 0,
         duration: 0.8,
         ease: 'power3.out',
+      });
+
+      // Parallax de la información de contacto
+      gsap.from(infoRef.current?.children || [], {
+        scrollTrigger: {
+          trigger: infoRef.current,
+          start: 'top 90%',
+          toggleActions: 'play none none reverse',
+        },
+        x: 50,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power3.out',
+      });
+
+      // Parallax del elemento decorativo
+      gsap.to(decorativeRef.current, {
+        yPercent: -30,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        },
       });
     }, sectionRef);
 
@@ -89,9 +118,15 @@ export function Contact() {
     <section
       id="contacto"
       ref={sectionRef}
-      className="py-20 md:py-32 bg-white"
+      className="py-20 md:py-32 bg-white relative overflow-hidden"
     >
-      <div className="container-custom">
+      {/* Elemento decorativo con parallax */}
+      <div
+        ref={decorativeRef}
+        className="absolute bottom-0 left-0 w-96 h-96 bg-primary-200/20 rounded-full blur-3xl pointer-events-none"
+      />
+      
+      <div className="container-custom relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-secondary-900 mb-6">
             Agenda tu Cita
@@ -180,7 +215,7 @@ export function Contact() {
           </div>
 
           {/* Información de contacto */}
-          <div>
+          <div ref={infoRef}>
             <div className="space-y-6 mb-8">
               {contactInfo.map((info) => {
                 const Icon = info.icon;

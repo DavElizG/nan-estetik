@@ -2,9 +2,9 @@
  * Services Section
  * 
  * Sección de servicios con:
+ * - Scroll horizontal parallax con pin
  * - Grid de servicios ofrecidos
- * - Animaciones horizontales con ScrollTrigger
- * - Cards interactivas
+ * - Animaciones interactivas con GSAP ScrollTrigger
  */
 
 'use client';
@@ -18,24 +18,44 @@ gsap.registerPlugin(ScrollTrigger);
 
 export function Services() {
   const sectionRef = useRef<HTMLElement>(null);
-  const cardsRef = useRef<HTMLDivElement>(null);
+  const horizontalRef = useRef<HTMLDivElement>(null);
+  const cardsContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Animación de cards con efecto horizontal
-      gsap.from(cardsRef.current?.children || [], {
-        scrollTrigger: {
-          trigger: cardsRef.current,
-          start: 'top 75%',
-          end: 'bottom 25%',
-          toggleActions: 'play none none reverse',
-        },
-        x: -100,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: 'power3.out',
-      });
+      // Parallax horizontal para los cards
+      if (cardsContainerRef.current && horizontalRef.current) {
+        const cards = gsap.utils.toArray(cardsContainerRef.current.children);
+        
+        // Crear timeline para scroll horizontal - siguiendo el patrón del ejemplo
+        gsap.to(cards, {
+          xPercent: -100 * (cards.length - 1),
+          ease: 'sine.out',
+          scrollTrigger: {
+            trigger: horizontalRef.current,
+            pin: true,
+            scrub: 3,
+            snap: 1 / (cards.length - 1),
+            start: 'top 20%',
+            end: () => `+=${horizontalRef.current!.offsetWidth}`,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        // Animación de entrada para cada card
+        gsap.from(cards, {
+          scrollTrigger: {
+            trigger: horizontalRef.current,
+            start: 'top 90%',
+            toggleActions: 'play none none reverse',
+          },
+          scale: 0.9,
+          opacity: 0,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: 'back.out(1.7)',
+        });
+      }
     }, sectionRef);
 
     return () => ctx.revert();
@@ -76,10 +96,10 @@ export function Services() {
     <section
       id="servicios"
       ref={sectionRef}
-      className="py-20 md:py-32 bg-white"
+      className="py-20 md:py-32 bg-white overflow-hidden"
     >
-      <div className="container-custom">
-        <div className="text-center mb-16">
+      <div className="container-custom mb-8">
+        <div className="text-center">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-secondary-900 mb-6">
             Nuestros Servicios
           </h2>
@@ -89,44 +109,50 @@ export function Services() {
             realzar tu belleza natural y mejorar tu confianza.
           </p>
         </div>
+      </div>
 
+      {/* Contenedor de scroll horizontal */}
+      <div ref={horizontalRef} className="relative min-h-screen flex items-center pt-4 pb-20">
         <div
-          ref={cardsRef}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+          ref={cardsContainerRef}
+          className="flex gap-20 w-full"
+          style={{ paddingLeft: 'max(4rem, 10vw)', paddingRight: 'max(4rem, 10vw)' }}
         >
           {services.map((service) => {
             const Icon = service.icon;
             return (
               <div
                 key={service.title}
-                className="card group hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary-200"
+                className="flex-shrink-0 w-[80vw] md:w-[35vw] lg:w-[26vw]"
               >
-                <div className="inline-flex items-center justify-center w-14 h-14 bg-primary-100 rounded-full mb-4 group-hover:bg-primary-500 group-hover:scale-110 transition-all">
-                  <Icon
-                    className="text-primary-600 group-hover:text-white transition-colors"
-                    size={28}
-                  />
+                <div className="card group hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary-200 h-full">
+                  <div className="inline-flex items-center justify-center w-14 h-14 bg-primary-100 rounded-full mb-4 group-hover:bg-primary-500 group-hover:scale-110 transition-all">
+                    <Icon
+                      className="text-primary-600 group-hover:text-white transition-colors"
+                      size={28}
+                    />
+                  </div>
+                  <h3 className="text-xl font-heading font-bold text-secondary-900 mb-3">
+                    {service.title}
+                  </h3>
+                  <p className="text-secondary-600 mb-4">
+                    {service.description}
+                  </p>
+                  <ul className="space-y-2 mb-6">
+                    {service.features.map((feature) => (
+                      <li
+                        key={feature}
+                        className="text-sm text-secondary-700 flex items-center gap-2"
+                      >
+                        <span className="w-1.5 h-1.5 bg-primary-500 rounded-full" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <button className="mt-auto text-primary-600 font-semibold hover:text-primary-700 transition-colors">
+                    Más información →
+                  </button>
                 </div>
-                <h3 className="text-xl font-heading font-bold text-secondary-900 mb-3">
-                  {service.title}
-                </h3>
-                <p className="text-secondary-600 mb-4">
-                  {service.description}
-                </p>
-                <ul className="space-y-2">
-                  {service.features.map((feature) => (
-                    <li
-                      key={feature}
-                      className="text-sm text-secondary-700 flex items-center gap-2"
-                    >
-                      <span className="w-1.5 h-1.5 bg-primary-500 rounded-full" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <button className="mt-6 text-primary-600 font-semibold hover:text-primary-700 transition-colors">
-                  Más información →
-                </button>
               </div>
             );
           })}
