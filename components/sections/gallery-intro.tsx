@@ -146,10 +146,10 @@ export function GalleryIntro() {
         <span className="text-xs uppercase tracking-[0.3em] text-secondary-400 mb-2">
           Descubre
         </span>
-        <span className="text-3xl md:text-4xl font-heading font-bold text-secondary-900">
+        <span className="text-7xl md:text-7xl font-heading font-bold text-secondary-900">
           Tu Belleza,
         </span>
-        <span className="text-4xl md:text-5xl font-heading font-black text-primary-500">
+        <span className="text-7xl md:text-7xl font-heading font-black text-primary-500">
           Nuestro Arte
         </span>
         <span className="text-xs uppercase tracking-[0.3em] text-secondary-400 mt-2">
