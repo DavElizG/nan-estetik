@@ -24,36 +24,41 @@ export function GalleryIntro() {
     const { innerHeight } = window;
 
     const ctx = gsap.context(() => {
-      // Timeline para sincronizar zoom y reveal del contenido
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          pin: true,
-          start: 'top top',
-          end: `+=${innerHeight * 1.3}`,
-          scrub: true,
-          anticipatePin: 1, // Evita el "salto" visual al pinear
-        },
-      });
-
-      // Zoom del texto - empieza desde scale 1 (su tamaño natural grande)
-      tl.to(textRef.current, {
-        scale: 50,
+      // Timeline parallax (mismo patrón que about.tsx)
+      const timeline = gsap.timeline({ paused: true });
+      
+      // Zoom del texto - reducido para mejor rendimiento
+      timeline.to(textRef.current, {
+        scale: 30,
         opacity: 0,
+        ease: 'none',
       }, 0);
 
       // Reveal del contenido detrás
-      tl.fromTo(contentRef.current, 
+      timeline.fromTo(contentRef.current, 
         {
           opacity: 0,
-          scale: 0.8,
+          scale: 0.95,
         },
         {
           opacity: 1,
           scale: 1,
+          ease: 'none',
         }, 
-        0.3 // Empieza un poco después del zoom
+        0.4
       );
+
+      // ScrollTrigger separado - optimizado para fluidez
+      ScrollTrigger.create({
+        animation: timeline,
+        trigger: sectionRef.current,
+        pin: true,
+        start: 'top top',
+        end: `+=${innerHeight * 3}`,
+        scrub: 0.3, // Más responsive
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+      });
     }, sectionRef);
 
     return () => ctx.revert();
@@ -135,13 +140,15 @@ export function GalleryIntro() {
         </div>
       </div>
 
-      {/* Texto que hace zoom - empieza grande */}
+      {/* Texto que hace zoom - optimizado para GPU */}
       <h2
         ref={textRef}
-        className="relative text-6xl md:text-8xl lg:text-9xl font-heading font-black text-center text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-primary-500 to-accent-rose"
+        className="relative text-6xl md:text-8xl lg:text-9xl font-heading font-black text-center text-primary-500"
         style={{ 
           transformOrigin: 'center center',
           zIndex: 2,
+          willChange: 'transform, opacity',
+          backfaceVisibility: 'hidden',
         }}
       >
         Galería

@@ -96,7 +96,7 @@ export function Services() {
     <section
       id="servicios"
       ref={sectionRef}
-      className="pt-16 pb-8 bg-white overflow-hidden"
+      className="pt-16 pb-4 bg-white overflow-hidden"
     >
       <div className="container-custom mb-8">
         <div className="text-center">

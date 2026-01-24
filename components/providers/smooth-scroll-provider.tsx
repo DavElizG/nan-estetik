@@ -32,7 +32,7 @@ export function SmoothScrollProvider({ children }: Readonly<SmoothScrollProvider
   useEffect(() => {
     // Inicializar Lenis con configuración personalizada
     const lenis = new Lenis({
-      duration: 1.2, // Duración de la animación de scroll
+      duration: 0.6, // Reducido para menos arrastre/inercia
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Función de easing suave
       orientation: 'vertical',
       gestureOrientation: 'vertical',
