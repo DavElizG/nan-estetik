@@ -14,7 +14,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export function GalleryIntro() {
   const sectionRef = useRef<HTMLElement>(null);
-  const textRef = useRef<HTMLHeadingElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
 
@@ -24,41 +24,35 @@ export function GalleryIntro() {
     const { innerHeight } = window;
 
     const ctx = gsap.context(() => {
-      // Timeline parallax (mismo patrón que about.tsx)
-      const timeline = gsap.timeline({ paused: true });
-      
-      // Zoom del texto - reducido para mejor rendimiento
-      timeline.to(textRef.current, {
-        scale: 30,
+      // Timeline para sincronizar zoom y reveal - IGUAL que commit original
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          pin: true,
+          start: 'top top',
+          end: `+=${innerHeight * 1.3}`,
+          scrub: true,
+        },
+      });
+
+      // Zoom del texto - scale 100 como el original
+      tl.to(textRef.current, {
+        scale: 100,
         opacity: 0,
-        ease: 'none',
       }, 0);
 
       // Reveal del contenido detrás
-      timeline.fromTo(contentRef.current, 
+      tl.fromTo(contentRef.current, 
         {
           opacity: 0,
-          scale: 0.95,
+          scale: 0.8,
         },
         {
           opacity: 1,
           scale: 1,
-          ease: 'none',
         }, 
-        0.4
+        0.3
       );
-
-      // ScrollTrigger separado - optimizado para fluidez
-      ScrollTrigger.create({
-        animation: timeline,
-        trigger: sectionRef.current,
-        pin: true,
-        start: 'top top',
-        end: `+=${innerHeight * 3}`,
-        scrub: 0.3, // Más responsive
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-      });
     }, sectionRef);
 
     return () => ctx.revert();
@@ -83,13 +77,13 @@ export function GalleryIntro() {
       {/* Contenido completo de galería detrás del zoom */}
       <div
         ref={contentRef}
-        className="absolute inset-0 flex flex-col items-center justify-start px-4 py-12 opacity-0 overflow-y-auto"
+        className="absolute inset-0 flex flex-col items-center justify-start px-4 pt-24 pb-12 opacity-0 overflow-y-auto"
         style={{ zIndex: 1 }}
       >
         <div className="container-custom w-full">
           {/* Título */}
           <div className="text-center mb-8">
-            <h3 className="text-3xl md:text-4xl font-heading font-bold text-secondary-900 mb-4">
+            <h3 className="text-7xl md:text-5xl font-heading font-bold text-secondary-900 mb-4">
               Nuestros Resultados
             </h3>
             <div className="w-24 h-1 bg-primary-500 mx-auto mb-4" />
@@ -140,19 +134,28 @@ export function GalleryIntro() {
         </div>
       </div>
 
-      {/* Texto que hace zoom - optimizado para GPU */}
-      <h2
+      {/* Texto estilo Lenis - múltiples líneas con zoom */}
+      <div
         ref={textRef}
-        className="relative text-6xl md:text-8xl lg:text-9xl font-heading font-black text-center text-primary-500"
+        className="relative flex flex-col items-center justify-center text-center leading-none"
         style={{ 
           transformOrigin: 'center center',
           zIndex: 2,
-          willChange: 'transform, opacity',
-          backfaceVisibility: 'hidden',
         }}
       >
-        Galería
-      </h2>
+        <span className="text-xs uppercase tracking-[0.3em] text-secondary-400 mb-2">
+          Descubre
+        </span>
+        <span className="text-3xl md:text-4xl font-heading font-bold text-secondary-900">
+          Tu Belleza,
+        </span>
+        <span className="text-4xl md:text-5xl font-heading font-black text-primary-500">
+          Nuestro Arte
+        </span>
+        <span className="text-xs uppercase tracking-[0.3em] text-secondary-400 mt-2">
+          Ver Resultados
+        </span>
+      </div>
     </section>
   );
 }

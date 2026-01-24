@@ -96,27 +96,30 @@ export function Services() {
     <section
       id="servicios"
       ref={sectionRef}
-      className="pt-16 pb-4 bg-white overflow-hidden"
+      className="bg-white overflow-hidden"
     >
-      <div className="container-custom mb-8">
-        <div className="text-center">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-secondary-900 mb-6">
-            Nuestros Servicios
-          </h2>
-          <div className="w-24 h-1 bg-primary-500 mx-auto mb-8" />
-          <p className="text-lg md:text-xl text-secondary-700 max-w-3xl mx-auto">
-            Ofrecemos una amplia gama de tratamientos estéticos diseñados para
-            realzar tu belleza natural y mejorar tu confianza.
-          </p>
+      {/* Contenedor de scroll horizontal - incluye título */}
+      <div ref={horizontalRef} className="relative min-h-screen flex flex-col justify-center pt-20 pb-8">
+        {/* Título dentro del contenedor pin */}
+        <div className="container-custom mb-6">
+          <div className="text-center">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-secondary-900 mb-4">
+              Nuestros Servicios
+            </h2>
+            <div className="w-24 h-1 bg-primary-500 mx-auto mb-4" />
+            <p className="text-lg md:text-xl text-secondary-700 max-w-3xl mx-auto">
+              Ofrecemos una amplia gama de tratamientos estéticos diseñados para
+              realzar tu belleza natural y mejorar tu confianza.
+            </p>
+          </div>
         </div>
-      </div>
 
-      {/* Contenedor de scroll horizontal */}
-      <div ref={horizontalRef} className="relative min-h-screen flex items-center">
+        {/* Cards horizontales */}
+        <div className="flex items-center flex-1">
         <div
           ref={cardsContainerRef}
-          className="flex gap-20 w-full"
-          style={{ paddingLeft: 'max(4rem, 10vw)', paddingRight: 'max(4rem, 10vw)' }}
+          className="flex gap-8 w-full"
+          style={{ paddingLeft: 'max(2rem, 5vw)', paddingRight: 'max(2rem, 5vw)' }}
         >
           {services.map((service) => {
             const Icon = service.icon;
@@ -156,6 +159,7 @@ export function Services() {
               </div>
             );
           })}
+        </div>
         </div>
       </div>
     </section>
