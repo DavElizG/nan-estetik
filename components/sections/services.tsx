@@ -99,9 +99,9 @@ export function Services() {
       className="bg-white overflow-hidden"
     >
       {/* Contenedor de scroll horizontal - incluye título */}
-      <div ref={horizontalRef} className="relative min-h-screen flex flex-col justify-center pt-20 pb-8 bg-secondary-50">
+      <div ref={horizontalRef} className="relative min-h-screen flex flex-col justify-start pt-16 pb-16 bg-secondary-50">
         {/* Título dentro del contenedor pin */}
-        <div className="container-custom mb-6">
+        <div className="container-custom mb-8">
           <div className="text-center">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-secondary-900 mb-4">
               Nuestros Servicios
@@ -115,7 +115,7 @@ export function Services() {
         </div>
 
         {/* Cards horizontales */}
-        <div className="flex items-center flex-1">
+        <div className="flex items-start flex-1 pt-4">
         <div
           ref={cardsContainerRef}
           className="flex gap-8 w-full"

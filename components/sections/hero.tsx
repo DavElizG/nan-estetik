@@ -79,16 +79,20 @@ export function Hero() {
       });
 
       // Parallax del contenido (se mueve más rápido que el fondo)
-      gsap.to([titleRef.current, subtitleRef.current, ctaRef.current], {
-        yPercent: 50,
-        opacity: 0,
-        ease: 'none',
+      // Solo se aplica cuando se hace scroll hacia abajo
+      const contentTl = gsap.timeline({
         scrollTrigger: {
           trigger: heroRef.current,
           start: 'top top',
           end: 'bottom top',
           scrub: true,
         },
+      });
+
+      contentTl.to([titleRef.current, subtitleRef.current, ctaRef.current], {
+        yPercent: 50,
+        opacity: 0,
+        ease: 'none',
       });
     }, heroRef);
 

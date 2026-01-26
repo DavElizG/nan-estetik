@@ -33,30 +33,71 @@ export function GalleryIntro() {
         },
       });
 
-      // 1. Primero el texto hace zoom-in (crece mucho)
+      // 1. El texto completo hace zoom (centrado en la "l")
       tl.to(textRef.current, {
         scale: 80,
         duration: 0.8,
-        ease: 'power2.in',
+        ease: 'power2.inOut',
       }, 0);
 
-      // 2. A mitad del zoom, el texto empieza a desvanecerse
+      // 2. El texto se desvanece cuando ya cubrió la pantalla
       tl.to(textRef.current, {
         opacity: 0,
-        duration: 0.3,
-      }, 0.5);
+        duration: 0.15,
+      }, 0.75);
 
-      // 3. El contenido aparece cuando el texto se ha desvanecido
+      // 3. El contenido aparece
       tl.fromTo(contentRef.current, 
         {
           opacity: 0,
         },
         {
           opacity: 1,
-          duration: 0.4,
+          duration: 0.15,
         }, 
-        0.6
+        0.85
       );
+
+      // 4. Efecto parallax en las imágenes de la galería (delayed parallax)
+      const galleryCards = galleryRef.current?.querySelectorAll('.gallery-card');
+      
+      if (galleryCards) {
+        galleryCards.forEach((card, index) => {
+          const innerContainer = card.querySelector('.inner-container') as HTMLElement;
+          const image = card.querySelector('.gallery-image') as HTMLElement;
+          
+          if (innerContainer && image) {
+            // Diferentes velocidades de scrub para cada card
+            const scrubValues = [0.5, 0.3, 0.7, 0.4, 0.6, 0.35];
+            const scrubValue = scrubValues[index % scrubValues.length];
+            
+            // Animación de la imagen (se mueve hacia arriba)
+            let imageAnim = gsap.to(image, {
+              yPercent: -50,
+              ease: 'none',
+              paused: true
+            });
+            
+            let progressTo = gsap.quickTo(imageAnim, 'progress', {
+              ease: 'power3',
+              duration: scrubValue
+            });
+            
+            // Animación del contenedor (se mueve hacia abajo)
+            gsap.to(innerContainer, {
+              yPercent: 50,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: card,
+                scrub: true,
+                start: 'top bottom',
+                end: 'bottom top',
+                onUpdate: self => progressTo(self.progress)
+              }
+            });
+          }
+        });
+      }
     }, sectionRef);
 
     return () => ctx.revert();
@@ -73,43 +114,49 @@ export function GalleryIntro() {
   ];
 
   return (
-    <section
-      id="galeria"
-      ref={sectionRef}
-      className="h-screen relative flex items-center justify-center bg-secondary-950 overflow-hidden"
-    >
-      {/* Texto con zoom - encima de todo al principio */}
-      <div
-        ref={textRef}
-        className="relative flex flex-col items-center justify-center text-center leading-none"
-        style={{ 
-          transformOrigin: '58% 35%', // Centrado en la "l" de "Belleza"
-          zIndex: 10,
-        }}
+    <>
+      {/* Sección del zoom */}
+      <section
+        id="galeria"
+        ref={sectionRef}
+        className="h-screen relative flex items-center justify-center bg-secondary-950"
       >
-        <span className="text-[8px] uppercase tracking-[0.4em] text-secondary-500 mb-4">
-          Descubre
-        </span>
-        <span className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-white tracking-wide">
-          Tu Bel<span className="inline-block" style={{ transformOrigin: 'center center' }}>l</span>eza,
-        </span>
-        <span className="text-4xl md:text-5xl lg:text-6xl font-heading font-black text-primary-500 mt-2">
-          Nuestro Arte
-        </span>
-        <span className="text-[8px] uppercase tracking-[0.4em] text-secondary-500 mt-4">
-          Ver Resultados
-        </span>
-      </div>
+        {/* Texto que hace zoom completo */}
+        <div
+          ref={textRef}
+          className="relative flex flex-col items-center justify-center text-center leading-none"
+          style={{ 
+            zIndex: 10,
+            transformOrigin: 'center center',
+          }}
+        >
+          <span className="text-[8px] uppercase tracking-[0.4em] text-secondary-500 mb-4">
+            Descubre
+          </span>
+          <span className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-white tracking-wide">
+            Tu Belleza,
+          </span>
+          <span className="text-4xl md:text-5xl lg:text-6xl font-heading font-black text-primary-500 mt-2">
+            Nuestro Arte
+          </span>
+          <span className="text-[8px] uppercase tracking-[0.4em] text-secondary-500 mt-4">
+            Ver Resultados
+          </span>
+        </div>
 
-      {/* Contenido completo de galería - detrás del texto */}
-      <div
-        ref={contentRef}
-        className="absolute inset-0 flex flex-col items-center justify-start px-4 pt-24 pb-12 opacity-0 overflow-y-auto bg-white"
-        style={{ zIndex: 5 }}
-      >
+        {/* Overlay blanco para transición */}
+        <div
+          ref={contentRef}
+          className="absolute inset-0 opacity-0 bg-white"
+          style={{ zIndex: 30 }}
+        />
+      </section>
+
+      {/* Sección de galería separada - fluye normalmente */}
+      <section className="bg-white py-24 min-h-screen">
         <div className="container-custom w-full">
           {/* Título */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-16">
             <h3 className="text-3xl md:text-5xl font-heading font-bold text-secondary-900 mb-4">
               Nuestros Resultados
             </h3>
@@ -122,44 +169,50 @@ export function GalleryIntro() {
           {/* Grid de galería */}
           <div
             ref={galleryRef}
-            className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8"
+            className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-16"
           >
-            {galleryItems.map((item) => (
-              <div
-                key={item.id}
-                className={`
-                  relative overflow-hidden rounded-xl cursor-pointer group
-                  ${item.aspect === 'tall' ? 'row-span-2' : ''}
-                  ${item.aspect === 'wide' ? 'col-span-2' : ''}
-                `}
-              >
-                <div className="aspect-square w-full bg-gradient-to-br from-secondary-200 via-secondary-300 to-primary-200 group-hover:scale-110 transition-transform duration-500" />
-                
-                <div className="absolute inset-0 bg-secondary-900/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <span className="text-white font-semibold text-lg">
-                    Ver detalles
-                  </span>
+              {galleryItems.map((item) => (
+                <div
+                  key={item.id}
+                  className={`
+                    gallery-card
+                    relative overflow-hidden rounded-xl cursor-pointer group
+                    ${item.aspect === 'tall' ? 'row-span-2' : ''}
+                    ${item.aspect === 'wide' ? 'col-span-2' : ''}
+                  `}
+                >
+                  {/* Inner container para el efecto parallax */}
+                  <div className="inner-container w-full h-full overflow-hidden">
+                    <div 
+                      className="gallery-image aspect-square w-full bg-gradient-to-br from-secondary-200 via-secondary-300 to-primary-200 will-change-transform"
+                    />
+                  </div>
+                  
+                  <div className="absolute inset-0 bg-secondary-900/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+                    <span className="text-white font-semibold text-lg">
+                      Ver detalles
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          {/* CTA */}
-          <div className="text-center">
-            <p className="text-secondary-600 mb-4">
-              ¿Quieres ver más resultados?
-            </p>
-            <a
-              href="https://instagram.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary"
-            >
-              Visita nuestro Instagram
-            </a>
+            {/* CTA */}
+            <div className="text-center">
+              <p className="text-secondary-600 mb-4">
+                ¿Quieres ver más resultados?
+              </p>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary"
+              >
+                Visita nuestro Instagram
+              </a>
+            </div>
           </div>
-        </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
