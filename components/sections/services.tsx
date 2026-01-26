@@ -245,7 +245,7 @@ export function Services() {
             <div
               key={service.title}
               data-service={service.title}
-              className={`service-panel h-screen flex items-center justify-center ${bgColors[index % bgColors.length]} overflow-hidden relative`}
+              className={`service-panel min-h-screen flex items-center justify-center ${bgColors[index % bgColors.length]} overflow-visible relative py-20`}
             >
               {/* Elementos decorativos */}
               <div className="absolute top-20 right-20 w-64 h-64 bg-primary-400/10 rounded-full blur-3xl decorative-element" />
@@ -258,9 +258,8 @@ export function Services() {
               </svg>
 
               {/* Contenedor con max-width para mantener todo en viewport */}
-              <div className="container mx-auto max-w-7xl px-6 lg:px-8 w-full h-full relative z-10 flex items-center">
-                <div className="w-full flex gap-8 items-center">
-                  {/* Contenido principal - lado izquierdo */}
+              <div className="container mx-auto max-w-7xl px-6 lg:px-8 w-full relative z-10">
+                <div className="w-full flex gap-8">{/* Contenido principal - lado izquierdo */}
                   <div className="main-content transition-all duration-700 flex-shrink-0" style={{ width: '100%' }}>
                     <div className="max-w-2xl">
                       {/* Eyebrow text */}
@@ -269,47 +268,47 @@ export function Services() {
                       </span>
 
                       {/* Título con tipografía elegante */}
-                      <h3 className="service-title text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-secondary-900 mb-6 leading-tight">
+                      <h3 className="service-title text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-secondary-900 mb-4 leading-tight">
                         {service.title}
                       </h3>
 
                       {/* Descripción */}
-                      <p className="text-xl md:text-2xl text-secondary-600/90 mb-12 leading-relaxed">
+                      <p className="text-lg md:text-xl text-secondary-600/90 mb-6 leading-relaxed">
                         {service.description}
                       </p>
 
                       {/* Badge premium */}
                       {service.premium && (
-                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-full text-sm font-semibold mb-8">
+                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-full text-sm font-semibold mb-4">
                           <Star size={16} className="animate-pulse" />
                           Tratamiento Premium
                         </span>
                       )}
                       
                       {/* Tratamientos clickeables con íconos SVG */}
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         {service.features.map((feature) => {
                           const TreatmentIcon = treatmentIcons[feature as keyof typeof treatmentIcons] || Sparkles;
                           return (
                             <button
                               key={feature}
                               onClick={() => handleTreatmentClick(service.title, feature)}
-                              className={`treatment-badge group w-full text-left px-8 py-5 rounded-2xl border-2 transition-all duration-300 ${
+                              className={`treatment-badge group w-full text-left px-6 py-4 rounded-xl border-2 transition-all duration-300 ${
                                 selectedTreatment === feature
                                   ? 'bg-primary-500 border-primary-500 text-white shadow-xl scale-105'
                                   : 'bg-white/80 backdrop-blur-sm border-primary-400/30 text-secondary-900 hover:border-primary-500 hover:shadow-lg hover:scale-[1.02]'
                               }`}
                             >
-                              <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-3">
                                 <div className={`p-2 rounded-lg transition-all ${
                                   selectedTreatment === feature ? 'bg-white/20' : 'bg-primary-50'
                                 }`}>
                                   <TreatmentIcon 
-                                    size={24} 
+                                    size={20} 
                                     className={selectedTreatment === feature ? 'text-white' : 'text-primary-600'}
                                   />
                                 </div>
-                                <span className="text-lg font-semibold flex-1">{feature}</span>
+                                <span className="text-base font-semibold flex-1">{feature}</span>
                                 <span className="text-sm opacity-70 group-hover:translate-x-1 transition-transform">→</span>
                               </div>
                             </button>
@@ -321,7 +320,7 @@ export function Services() {
 
                   {/* Panel de detalles - aparece desde la derecha */}
                   <div 
-                    className="detail-panel absolute inset-y-0 right-0 bg-white shadow-2xl flex items-center overflow-y-auto"
+                    className="detail-panel fixed inset-y-0 right-0 bg-white shadow-2xl flex items-center overflow-y-auto z-50"
                     style={{ 
                       transform: 'translateX(100%)', 
                       opacity: 0,

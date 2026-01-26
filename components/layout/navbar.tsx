@@ -35,14 +35,14 @@ export function Navbar() {
 
           // Auto-hide logic
           if (navRef.current) {
-            if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+            if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
               // Scrolling down - hide navbar
               gsap.to(navRef.current, {
                 y: -100,
                 duration: 0.3,
                 ease: 'power2.out',
               });
-            } else {
+            } else if (currentScrollY < lastScrollY.current) {
               // Scrolling up - show navbar
               gsap.to(navRef.current, {
                 y: 0,
