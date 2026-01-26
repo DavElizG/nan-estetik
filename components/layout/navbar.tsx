@@ -9,22 +9,58 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { clsx } from 'clsx';
+import { gsap } from 'gsap';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  const lastScrollY = useRef(0);
 
-  // Detectar scroll para cambiar estilo del navbar
+  // Auto-hide navbar al hacer scroll down, show al hacer scroll up
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const currentScrollY = window.scrollY;
+
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          // Cambiar estilo del navbar al hacer scroll
+          setIsScrolled(currentScrollY > 50);
+
+          // Auto-hide logic
+          if (navRef.current) {
+            if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+              // Scrolling down - hide navbar
+              gsap.to(navRef.current, {
+                y: -100,
+                duration: 0.3,
+                ease: 'power2.out',
+              });
+            } else {
+              // Scrolling up - show navbar
+              gsap.to(navRef.current, {
+                y: 0,
+                duration: 0.3,
+                ease: 'power2.out',
+              });
+            }
+          }
+
+          lastScrollY.current = currentScrollY;
+          ticking = false;
+        });
+
+        ticking = true;
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -38,6 +74,7 @@ export function Navbar() {
 
   return (
     <nav
+      ref={navRef}
       className={clsx(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         isScrolled

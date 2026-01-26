@@ -181,7 +181,7 @@ export function Testimonials() {
 
               {/* Testimonial text */}
               <p className="text-secondary-700 mb-6 italic">
-                "{testimonial.text}"
+                &ldquo;{testimonial.text}&rdquo;
               </p>
 
               {/* Avatar and info */}

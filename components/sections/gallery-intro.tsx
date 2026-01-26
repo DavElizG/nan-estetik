@@ -72,13 +72,13 @@ export function GalleryIntro() {
             const scrubValue = scrubValues[index % scrubValues.length];
             
             // Animación de la imagen (se mueve hacia arriba)
-            let imageAnim = gsap.to(image, {
+            const imageAnim = gsap.to(image, {
               yPercent: -50,
               ease: 'none',
               paused: true
             });
             
-            let progressTo = gsap.quickTo(imageAnim, 'progress', {
+            const progressTo = gsap.quickTo(imageAnim, 'progress', {
               ease: 'power3',
               duration: scrubValue
             });
