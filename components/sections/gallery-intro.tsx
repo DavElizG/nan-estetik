@@ -21,37 +21,41 @@ export function GalleryIntro() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const { innerHeight } = window;
-
     const ctx = gsap.context(() => {
-      // Timeline para sincronizar zoom y reveal - IGUAL que commit original
+      // Timeline para sincronizar zoom y reveal
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           pin: true,
           start: 'top top',
-          end: `+=${innerHeight * 1.3}`,
-          scrub: true,
+          end: '+=3000',
+          scrub: 0.2,
         },
       });
 
-      // Zoom del texto - scale 100 como el original
+      // 1. Primero el texto hace zoom-in (crece mucho)
       tl.to(textRef.current, {
-        scale: 100,
-        opacity: 0,
+        scale: 80,
+        duration: 0.8,
+        ease: 'power2.in',
       }, 0);
 
-      // Reveal del contenido detrás
+      // 2. A mitad del zoom, el texto empieza a desvanecerse
+      tl.to(textRef.current, {
+        opacity: 0,
+        duration: 0.3,
+      }, 0.5);
+
+      // 3. El contenido aparece cuando el texto se ha desvanecido
       tl.fromTo(contentRef.current, 
         {
           opacity: 0,
-          scale: 0.8,
         },
         {
           opacity: 1,
-          scale: 1,
+          duration: 0.4,
         }, 
-        0.3
+        0.6
       );
     }, sectionRef);
 
@@ -72,13 +76,36 @@ export function GalleryIntro() {
     <section
       id="galeria"
       ref={sectionRef}
-      className="h-screen relative flex items-center justify-center bg-secondary-900 overflow-hidden"
+      className="h-screen relative flex items-center justify-center bg-secondary-950 overflow-hidden"
     >
-      {/* Contenido completo de galería detrás del zoom */}
+      {/* Texto con zoom - encima de todo al principio */}
+      <div
+        ref={textRef}
+        className="relative flex flex-col items-center justify-center text-center leading-none"
+        style={{ 
+          transformOrigin: '58% 35%', // Centrado en la "l" de "Belleza"
+          zIndex: 10,
+        }}
+      >
+        <span className="text-[8px] uppercase tracking-[0.4em] text-secondary-500 mb-4">
+          Descubre
+        </span>
+        <span className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-white tracking-wide">
+          Tu Bel<span className="inline-block" style={{ transformOrigin: 'center center' }}>l</span>eza,
+        </span>
+        <span className="text-4xl md:text-5xl lg:text-6xl font-heading font-black text-primary-500 mt-2">
+          Nuestro Arte
+        </span>
+        <span className="text-[8px] uppercase tracking-[0.4em] text-secondary-500 mt-4">
+          Ver Resultados
+        </span>
+      </div>
+
+      {/* Contenido completo de galería - detrás del texto */}
       <div
         ref={contentRef}
         className="absolute inset-0 flex flex-col items-center justify-start px-4 pt-24 pb-12 opacity-0 overflow-y-auto bg-white"
-        style={{ zIndex: 1 }}
+        style={{ zIndex: 5 }}
       >
         <div className="container-custom w-full">
           {/* Título */}
@@ -132,29 +159,6 @@ export function GalleryIntro() {
             </a>
           </div>
         </div>
-      </div>
-
-      {/* Texto estilo Lenis - múltiples líneas con zoom */}
-      <div
-        ref={textRef}
-        className="relative flex flex-col items-center justify-center text-center leading-none"
-        style={{ 
-          transformOrigin: 'center center',
-          zIndex: 2,
-        }}
-      >
-        <span className="text-xs uppercase tracking-[0.3em] text-secondary-400 mb-2">
-          Descubre
-        </span>
-        <span className="text-3xl md:text-4xl font-heading font-bold text-white">
-          Tu Belleza,
-        </span>
-        <span className="text-4xl md:text-5xl font-heading font-black text-primary-500">
-          Nuestro Arte
-        </span>
-        <span className="text-xs uppercase tracking-[0.3em] text-secondary-400 mt-2">
-          Ver Resultados
-        </span>
       </div>
     </section>
   );
