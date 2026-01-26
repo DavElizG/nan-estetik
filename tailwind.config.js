@@ -7,34 +7,37 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Paleta de colores para clínica estética - moderna y elegante
+        // Paleta de colores para clínica estética - elegante y premium
+        // Negro, blanco y dorado
         primary: {
-          50: '#fdf2f8',
-          100: '#fce7f3',
-          200: '#fbcfe8',
-          300: '#f9a8d4',
-          400: '#f472b6',
-          500: '#ec4899', // Rosa principal
-          600: '#db2777',
-          700: '#be185d',
-          800: '#9f1239',
-          900: '#831843',
+          50: '#fdfbf3',
+          100: '#faf5e4',
+          200: '#f5eac5',
+          300: '#edd89a',
+          400: '#e4c56d',
+          500: '#d4af37', // Dorado principal
+          600: '#b8942d',
+          700: '#967724',
+          800: '#7a6020',
+          900: '#65501c',
         },
         secondary: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b', // Gris azulado
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
+          50: '#fafafa',
+          100: '#f5f5f5',
+          200: '#e5e5e5',
+          300: '#d4d4d4',
+          400: '#a3a3a3',
+          500: '#737373', // Gris neutro
+          600: '#525252',
+          700: '#404040',
+          800: '#262626',
+          900: '#171717', // Casi negro
+          950: '#0a0a0a', // Negro profundo
         },
         accent: {
           gold: '#d4af37', // Dorado para acentos premium
-          rose: '#ff98a2', // Rosa suave para detalles
+          cream: '#f5f5dc', // Crema suave
+          champagne: '#f7e7ce', // Champagne
         },
       },
       fontFamily: {

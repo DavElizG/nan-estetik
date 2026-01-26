@@ -99,7 +99,7 @@ export function Services() {
       className="bg-white overflow-hidden"
     >
       {/* Contenedor de scroll horizontal - incluye título */}
-      <div ref={horizontalRef} className="relative min-h-screen flex flex-col justify-center pt-20 pb-8">
+      <div ref={horizontalRef} className="relative min-h-screen flex flex-col justify-center pt-20 pb-8 bg-secondary-50">
         {/* Título dentro del contenedor pin */}
         <div className="container-custom mb-6">
           <div className="text-center">
@@ -107,7 +107,7 @@ export function Services() {
               Nuestros Servicios
             </h2>
             <div className="w-24 h-1 bg-primary-500 mx-auto mb-4" />
-            <p className="text-lg md:text-xl text-secondary-700 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-secondary-600 max-w-3xl mx-auto">
               Ofrecemos una amplia gama de tratamientos estéticos diseñados para
               realzar tu belleza natural y mejorar tu confianza.
             </p>
@@ -128,10 +128,10 @@ export function Services() {
                 key={service.title}
                 className="flex-shrink-0 w-[80vw] md:w-[35vw] lg:w-[26vw]"
               >
-                <div className="card group hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary-200 h-full">
-                  <div className="inline-flex items-center justify-center w-14 h-14 bg-primary-100 rounded-full mb-4 group-hover:bg-primary-500 group-hover:scale-110 transition-all">
+                <div className="card group hover:shadow-2xl transition-all duration-300 border border-secondary-200 hover:border-primary-400 h-full bg-white">
+                  <div className="inline-flex items-center justify-center w-14 h-14 bg-secondary-100 rounded-full mb-4 group-hover:bg-primary-500 group-hover:scale-110 transition-all">
                     <Icon
-                      className="text-primary-600 group-hover:text-white transition-colors"
+                      className="text-primary-500 group-hover:text-secondary-900 transition-colors"
                       size={28}
                     />
                   </div>
@@ -152,7 +152,7 @@ export function Services() {
                       </li>
                     ))}
                   </ul>
-                  <button className="mt-auto text-primary-600 font-semibold hover:text-primary-700 transition-colors">
+                  <button className="mt-auto text-primary-600 font-semibold hover:text-primary-500 transition-colors">
                     Más información →
                   </button>
                 </div>

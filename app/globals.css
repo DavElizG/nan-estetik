@@ -93,15 +93,15 @@ html.lenis {
   }
   
   .btn-primary {
-    @apply btn bg-primary-500 text-white hover:bg-primary-600 hover:shadow-lg;
+    @apply btn bg-primary-500 text-secondary-900 hover:bg-primary-600 hover:shadow-lg font-semibold;
   }
   
   .btn-secondary {
-    @apply btn bg-secondary-100 text-secondary-900 hover:bg-secondary-200;
+    @apply btn bg-secondary-900 text-white hover:bg-secondary-800;
   }
   
   .btn-outline {
-    @apply btn border-2 border-primary-500 text-primary-500 hover:bg-primary-50;
+    @apply btn border-2 border-primary-500 text-primary-600 hover:bg-primary-50;
   }
   
   /* Card component */

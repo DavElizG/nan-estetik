@@ -101,16 +101,16 @@ export function Hero() {
       ref={heroRef}
       className="relative h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Background con parallax - capa más lenta */}
+      {/* Background con parallax - elegante negro con degradado dorado sutil */}
       <div 
         ref={bgRef}
-        className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-500 to-accent-rose z-0 will-change-transform"
+        className="absolute inset-0 bg-gradient-to-br from-secondary-950 via-secondary-900 to-secondary-800 z-0 will-change-transform"
         style={{ height: '120vh', top: '-10vh' }}
       >
-        {/* Overlay con parallax - capa intermedia */}
+        {/* Overlay con detalles dorados sutiles */}
         <div 
           ref={overlayRef}
-          className="absolute inset-0 bg-black/30 will-change-transform" 
+          className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-primary-900/20 will-change-transform" 
         />
       </div>
 
@@ -120,7 +120,7 @@ export function Hero() {
           ref={titleRef}
           className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold mb-6"
         >
-          Nan Estetik
+          <span className="text-primary-500">Nan</span> Estetik
         </h1>
         <p
           ref={subtitleRef}
@@ -129,10 +129,10 @@ export function Hero() {
           Realza tu belleza natural con nuestros tratamientos especializados
         </p>
         <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="#servicios" className="btn-primary bg-white text-primary-600 hover:bg-white/90">
+          <a href="#servicios" className="btn bg-primary-500 text-secondary-900 hover:bg-primary-400 font-semibold">
             Ver Servicios
           </a>
-          <a href="#contacto" className="btn-outline border-white text-white hover:bg-white/10">
+          <a href="#contacto" className="btn border-2 border-white text-white hover:bg-white/10">
             Agendar Cita
           </a>
         </div>

@@ -83,7 +83,7 @@ export function About() {
     <section
       id="nosotros"
       ref={sectionRef}
-      className="min-h-[200vh] w-full bg-secondary-50 relative overflow-hidden"
+      className="min-h-[200vh] w-full bg-white relative overflow-hidden"
     >
       <div className="container-custom py-12">
         <div className="flex flex-col md:flex-row justify-center items-start gap-8 md:gap-16">
@@ -95,7 +95,7 @@ export function About() {
             <div className="border-l-4 border-primary-500 pl-6 py-4">
               <h2 className="text-5xl md:text-6xl lg:text-7xl font-heading font-black text-secondary-900 leading-[0.85]">
                 <span className="block">Sobre</span>
-                <span className="block text-primary-600">Nan</span>
+                <span className="block text-primary-500">Nan</span>
                 <span className="block">Estetik</span>
               </h2>
             </div>
@@ -107,7 +107,7 @@ export function About() {
                 return (
                   <div
                     key={stat.value}
-                    className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm"
+                    className="flex items-center gap-4 p-4 bg-secondary-50 rounded-xl border border-secondary-100 hover:border-primary-300 transition-colors"
                   >
                     <div className="flex-shrink-0 w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
                       <Icon className="text-primary-600" size={24} />

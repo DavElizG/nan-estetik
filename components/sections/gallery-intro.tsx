@@ -72,22 +72,22 @@ export function GalleryIntro() {
     <section
       id="galeria"
       ref={sectionRef}
-      className="h-screen relative flex items-center justify-center bg-white overflow-hidden"
+      className="h-screen relative flex items-center justify-center bg-secondary-900 overflow-hidden"
     >
       {/* Contenido completo de galería detrás del zoom */}
       <div
         ref={contentRef}
-        className="absolute inset-0 flex flex-col items-center justify-start px-4 pt-24 pb-12 opacity-0 overflow-y-auto"
+        className="absolute inset-0 flex flex-col items-center justify-start px-4 pt-24 pb-12 opacity-0 overflow-y-auto bg-white"
         style={{ zIndex: 1 }}
       >
         <div className="container-custom w-full">
           {/* Título */}
           <div className="text-center mb-8">
-            <h3 className="text-7xl md:text-5xl font-heading font-bold text-secondary-900 mb-4">
+            <h3 className="text-3xl md:text-5xl font-heading font-bold text-secondary-900 mb-4">
               Nuestros Resultados
             </h3>
             <div className="w-24 h-1 bg-primary-500 mx-auto mb-4" />
-            <p className="text-base md:text-lg text-secondary-700 max-w-2xl mx-auto">
+            <p className="text-base md:text-lg text-secondary-600 max-w-2xl mx-auto">
               Descubre las transformaciones de nuestros pacientes.
             </p>
           </div>
@@ -106,9 +106,9 @@ export function GalleryIntro() {
                   ${item.aspect === 'wide' ? 'col-span-2' : ''}
                 `}
               >
-                <div className="aspect-square w-full bg-gradient-to-br from-primary-200 via-primary-300 to-accent-rose group-hover:scale-110 transition-transform duration-500" />
+                <div className="aspect-square w-full bg-gradient-to-br from-secondary-200 via-secondary-300 to-primary-200 group-hover:scale-110 transition-transform duration-500" />
                 
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <div className="absolute inset-0 bg-secondary-900/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                   <span className="text-white font-semibold text-lg">
                     Ver detalles
                   </span>
@@ -146,10 +146,10 @@ export function GalleryIntro() {
         <span className="text-xs uppercase tracking-[0.3em] text-secondary-400 mb-2">
           Descubre
         </span>
-        <span className="text-7xl md:text-7xl font-heading font-bold text-secondary-900">
+        <span className="text-3xl md:text-4xl font-heading font-bold text-white">
           Tu Belleza,
         </span>
-        <span className="text-7xl md:text-7xl font-heading font-black text-primary-500">
+        <span className="text-4xl md:text-5xl font-heading font-black text-primary-500">
           Nuestro Arte
         </span>
         <span className="text-xs uppercase tracking-[0.3em] text-secondary-400 mt-2">

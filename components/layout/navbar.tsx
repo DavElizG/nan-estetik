@@ -52,10 +52,10 @@ export function Navbar() {
             href="/"
             className={clsx(
               'text-2xl font-heading font-bold transition-colors',
-              isScrolled ? 'text-primary-600' : 'text-white'
+              isScrolled ? 'text-secondary-900' : 'text-white'
             )}
           >
-            Nan Estetik
+            <span className="text-primary-500">Nan</span> Estetik
           </Link>
 
           {/* Desktop Navigation */}
@@ -92,13 +92,13 @@ export function Navbar() {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden mt-4 py-4 bg-white rounded-lg shadow-lg">
+          <div className="md:hidden mt-4 py-4 bg-white rounded-lg shadow-lg border border-secondary-100">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-4 py-3 text-secondary-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                className="block px-4 py-3 text-secondary-700 hover:bg-secondary-50 hover:text-primary-600 transition-colors"
               >
                 {link.label}
               </a>

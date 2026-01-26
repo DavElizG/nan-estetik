@@ -118,12 +118,12 @@ export function Contact() {
     <section
       id="contacto"
       ref={sectionRef}
-      className="py-20 md:py-32 bg-white relative overflow-hidden"
+      className="py-20 md:py-32 bg-secondary-50 relative overflow-hidden"
     >
       {/* Elemento decorativo con parallax */}
       <div
         ref={decorativeRef}
-        className="absolute bottom-0 left-0 w-96 h-96 bg-primary-200/20 rounded-full blur-3xl pointer-events-none"
+        className="absolute bottom-0 left-0 w-96 h-96 bg-primary-300/20 rounded-full blur-3xl pointer-events-none"
       />
       
       <div className="container-custom relative z-10">
@@ -132,7 +132,7 @@ export function Contact() {
             Agenda tu Cita
           </h2>
           <div className="w-24 h-1 bg-primary-500 mx-auto mb-8" />
-          <p className="text-lg md:text-xl text-secondary-700 max-w-3xl mx-auto">
+          <p className="text-lg md:text-xl text-secondary-600 max-w-3xl mx-auto">
             Estamos aquí para ayudarte. Contáctanos y agenda tu consulta.
           </p>
         </div>
@@ -222,10 +222,10 @@ export function Contact() {
                 return (
                   <div
                     key={info.title}
-                    className="flex items-start gap-4 p-4 rounded-lg hover:bg-secondary-50 transition-colors"
+                    className="flex items-start gap-4 p-4 rounded-lg bg-white hover:shadow-md transition-all border border-secondary-100"
                   >
-                    <div className="flex-shrink-0 w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                      <Icon className="text-primary-600" size={24} />
+                    <div className="flex-shrink-0 w-12 h-12 bg-secondary-100 rounded-lg flex items-center justify-center">
+                      <Icon className="text-primary-500" size={24} />
                     </div>
                     <div>
                       <h3 className="font-semibold text-secondary-900 mb-1">
