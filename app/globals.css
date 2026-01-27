@@ -97,7 +97,7 @@ html.lenis {
   }
   
   .btn-secondary {
-    @apply btn bg-secondary-900 text-white hover:bg-secondary-800;
+    @apply btn bg-secondary-900 text-white hover:bg-secondary-800 border border-white/10;
   }
   
   .btn-outline {
@@ -117,4 +117,15 @@ html.lenis {
   .label {
     @apply block text-sm font-medium text-secondary-700 mb-2;
   }
+}
+
+/* Three.js Canvas optimization */
+canvas {
+  display: block;
+  outline: none;
+}
+
+/* Smooth scroll behavior for about section */
+.about-content-section {
+  scroll-snap-align: start;
 }
