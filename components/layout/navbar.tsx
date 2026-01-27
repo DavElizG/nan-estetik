@@ -17,7 +17,7 @@ import { gsap } from 'gsap';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true); // Empieza en modo oscuro
+  const [isDarkMode] = useState(true); // Empieza en modo oscuro
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const lastScrollY = useRef(0);

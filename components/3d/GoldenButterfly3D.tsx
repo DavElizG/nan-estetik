@@ -628,8 +628,9 @@ export function GoldenButterfly3D({ scrollContainerRef, className = '' }: Golden
         });
       }
       
+      const currentScrollContainer = scrollContainerRef.current;
       ScrollTrigger.getAll().forEach(st => {
-        if (st.trigger === scrollContainerRef.current) {
+        if (st.trigger === currentScrollContainer) {
           st.kill();
         }
       });

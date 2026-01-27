@@ -13,13 +13,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Sparkles, Droplet, Zap, Star, Sun, Check, X as CloseIcon } from 'lucide-react';
+import { Sparkles, Droplet, Zap, Star, Sun, Check, X as CloseIcon, type LucideIcon } from 'lucide-react';
 import type { Service as ServiceType } from '@/types/service';
 
 gsap.registerPlugin(ScrollTrigger);
 
 // Map de iconos disponibles
-const iconMap: { [key: string]: any } = {
+const iconMap: { [key: string]: LucideIcon } = {
   Sparkles,
   Droplet,
   Zap,
@@ -29,7 +29,6 @@ const iconMap: { [key: string]: any } = {
 
 export function Services() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [expandedService, setExpandedService] = useState<string | null>(null);
   const [selectedTreatment, setSelectedTreatment] = useState<string | null>(null);
   const [services, setServices] = useState<ServiceType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +68,7 @@ export function Services() {
       });
 
       // Animación de entrada para cada servicio
-      services.forEach((service, index) => {
+      services.forEach((service) => {
         const serviceElement = document.querySelector(`[data-service="${service.title}"]`);
         if (serviceElement) {
           // Título con reveal
@@ -137,6 +136,12 @@ export function Services() {
 
     if (selectedTreatment === treatment) {
       // Cerrar
+      gsap.to(serviceElement.querySelector('.main-content'), {
+        x: 0,
+        width: '100%',
+        duration: 0.7,
+        ease: 'power3.out',
+      });
       gsap.to(serviceElement.querySelector('.detail-panel'), {
         x: '100%',
         opacity: 0,
@@ -146,6 +151,12 @@ export function Services() {
       setSelectedTreatment(null);
     } else {
       // Abrir
+      gsap.to(serviceElement.querySelector('.main-content'), {
+        x: 0,
+        width: '48%',
+        duration: 0.7,
+        ease: 'power3.out',
+      });
       gsap.to(serviceElement.querySelector('.detail-panel'), {
         x: 0,
         opacity: 1,
@@ -166,31 +177,6 @@ export function Services() {
       </section>
     );
   }
-
-  const handleMoreInfo = (serviceTitle: string) => {
-    const serviceElement = document.querySelector(`[data-service="${serviceTitle}"]`);
-    if (!serviceElement) return;
-
-    if (expandedService === serviceTitle) {
-      // Cerrar
-      gsap.to(serviceElement.querySelector('.extra-content'), {
-        height: 0,
-        opacity: 0,
-        duration: 0.5,
-        ease: 'power3.inOut',
-      });
-      setExpandedService(null);
-    } else {
-      // Abrir
-      gsap.to(serviceElement.querySelector('.extra-content'), {
-        height: 'auto',
-        opacity: 1,
-        duration: 0.5,
-        ease: 'power3.inOut',
-      });
-      setExpandedService(serviceTitle);
-    }
-  };
 
   return (
     <section
@@ -214,7 +200,6 @@ export function Services() {
 
       {/* Paneles de servicios - se apilan uno encima del otro */}
       {services.map((service, index) => {
-        const Icon = iconMap[service.icon] || Sparkles;
         const bgColors = [
           'bg-gradient-to-br from-gray-900 via-black to-gray-800',
           'bg-gradient-to-br from-black via-gray-900 to-black',
@@ -241,11 +226,11 @@ export function Services() {
               <path d="M0,500 Q600,400 1200,500" fill="none" stroke="#d4af37" strokeWidth="1"/>
             </svg>
 
-            {/* Contenedor con max-width para mantener todo en viewport */}
+            {/* Grid de contenido */}
             <div className="container mx-auto max-w-7xl px-6 lg:px-8 w-full relative z-10">
-              <div className={`w-full flex gap-8 items-center ${isContentRight ? 'justify-end' : 'justify-start'}`}>
+              <div className={`w-full flex gap-8 ${isContentRight ? 'flex-row-reverse' : 'flex-row'}`}>
                 {/* Contenido principal */}
-                <div className="main-content transition-all duration-700 flex-shrink-0" style={{ width: '50%', maxWidth: '600px' }}>
+                <div className="main-content transition-all duration-700 flex-shrink-0" style={{ width: '100%' }}>
                   <div className="max-w-2xl">
                     {/* Eyebrow text */}
                     <span className="service-icon text-xs uppercase tracking-[0.3em] text-primary-400 font-semibold mb-3 block">
@@ -282,7 +267,7 @@ export function Services() {
                             className={`treatment-badge group relative w-full text-left px-8 py-6 rounded-2xl transition-all duration-500 overflow-hidden ${
                               selectedTreatment === treatment.name
                                 ? 'bg-gradient-to-r from-primary-500 to-primary-600 border-2 border-primary-700 text-white shadow-2xl scale-[1.02]'
-                                : 'bg-white/5 backdrop-blur-sm border-2 border-primary-400/30 text-white hover:bg-white/10 hover:border-primary-400/60 hover:shadow-2xl hover:scale-[1.02] shadow-lg'
+                                : 'bg-gradient-to-br from-white via-white to-primary-50/30 border-2 border-primary-400/40 text-secondary-900 hover:border-primary-500 hover:shadow-2xl hover:scale-[1.02] hover:from-primary-50 hover:to-white shadow-lg'
                             }`}
                           >
                             {/* Efecto de brillo sutil */}
@@ -292,27 +277,27 @@ export function Services() {
                               <div className={`p-3 rounded-xl transition-all duration-300 ${
                                 selectedTreatment === treatment.name 
                                   ? 'bg-white/20 shadow-lg' 
-                                  : 'bg-primary-500/20 backdrop-blur-sm shadow-md group-hover:bg-primary-500/30 group-hover:shadow-lg group-hover:scale-110'
+                                  : 'bg-gradient-to-br from-primary-100 to-primary-50 shadow-md group-hover:shadow-lg group-hover:scale-110'
                               }`}>
                                 <TreatmentIcon 
                                   size={24} 
                                   className={`transition-all duration-300 ${
                                     selectedTreatment === treatment.name 
                                       ? 'text-white' 
-                                      : 'text-primary-300 group-hover:text-primary-200'
+                                      : 'text-primary-600 group-hover:text-primary-700'
                                   }`}
                                 />
                               </div>
                               <div className="flex-1">
                                 <span className="text-lg font-bold tracking-tight">{treatment.name}</span>
                                 <div className={`h-0.5 w-0 group-hover:w-full transition-all duration-500 mt-1 ${
-                                  selectedTreatment === treatment.name ? 'bg-white/40' : 'bg-primary-400/40'
+                                  selectedTreatment === treatment.name ? 'bg-white/40' : 'bg-primary-500/30'
                                 }`} />
                               </div>
                               <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 ${
                                 selectedTreatment === treatment.name 
                                   ? 'bg-white/20' 
-                                  : 'bg-primary-500/20 backdrop-blur-sm group-hover:bg-primary-500/30'
+                                  : 'bg-primary-100 group-hover:bg-primary-200'
                               }`}>
                                 <span className="text-base font-bold group-hover:translate-x-1 transition-transform duration-300">→</span>
                               </div>

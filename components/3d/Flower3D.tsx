@@ -378,8 +378,9 @@ export function Flower3D({ scrollContainerRef, className = '' }: Flower3DProps) 
       }
       
       // Limpiar ScrollTrigger
+      const currentScrollContainer = scrollContainerRef.current;
       ScrollTrigger.getAll().forEach(st => {
-        if (st.trigger === scrollContainerRef.current) {
+        if (st.trigger === currentScrollContainer) {
           st.kill();
         }
       });

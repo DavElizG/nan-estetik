@@ -10,7 +10,7 @@
 
 'use client';
 
-import { useRef, useEffect, useState, Suspense, useCallback } from 'react';
+import { useRef, useEffect, useState, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import {
   CubeCamera,
@@ -261,7 +261,6 @@ export function Diamond3D({ className = '' }: Diamond3DProps) {
           pointerEvents: 'none'
         }}
       >
-        <color attach="background" args={[0, 0, 0, 0]} />
         <Suspense fallback={<LoadingFallback />}>
           <Scene />
         </Suspense>

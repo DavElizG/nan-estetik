@@ -30,8 +30,8 @@ interface GoldenFlower3DProps {
 // ============================================
 const GOLD_PRIMARY = 0xD4AF37;
 const GOLD_LIGHT = 0xF5E6A3;
-const STEM_GREEN = 0x2d5016;
-const LEAF_GREEN = 0x3a6b1e;
+// const STEM_GREEN = 0x2d5016; // Reserved for future use
+// const LEAF_GREEN = 0x3a6b1e; // Reserved for future use
 
 // ============================================
 // ELEGANT GOLDEN RINGS - SIMPLE & AESTHETIC
@@ -328,8 +328,9 @@ export function GoldenFlower3D({ scrollContainerRef, className = '' }: GoldenFlo
         });
       }
       
+      const currentScrollContainer = scrollContainerRef.current;
       ScrollTrigger.getAll().forEach(st => {
-        if (st.trigger === scrollContainerRef.current) {
+        if (st.trigger === currentScrollContainer) {
           st.kill();
         }
       });
