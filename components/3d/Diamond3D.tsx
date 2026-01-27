@@ -1,297 +1,273 @@
 /**
- * Diamond3D Component - Elegant Crystal/Diamond
+ * Diamond3D Component - Realistic Diamond with Waypoint Animation
  * 
- * Premium 3D diamond with:
- * - Faceted geometry (Icosahedron/Octahedron)
- * - Glass-like transparency with refraction
- * - Sparkle lighting effects
- * - Slow elegant rotation
- * - Contained within parent element (not fixed)
+ * Diamante 3D realista con:
+ * - MeshRefractionMaterial para refracción real
+ * - Sistema de waypoints con GSAP Flip + ScrollTrigger
+ * - El diamante se mueve entre marcadores mientras se hace scroll
+ * - Sin rotación automática, solo controlado por scroll
  */
 
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useRef, useEffect, useState, Suspense, useCallback } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import {
+  CubeCamera,
+  Environment,
+  MeshRefractionMaterial,
+} from '@react-three/drei';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
+import { RGBELoader } from 'three-stdlib';
 import * as THREE from 'three';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface Diamond3DProps {
   className?: string;
 }
 
 // ============================================
-// COLORS
-// ============================================
-const GOLD_TINT = 0xFFD700;
-const WARM_WHITE = 0xFFF8E7;
-
-// ============================================
-// SPARKLE PARTICLES
+// DIAMOND GEOMETRY - Classic Brilliant Cut
 // ============================================
 
-function createSparkles(): THREE.Points {
-  const particleCount = 60;
-  const positions = new Float32Array(particleCount * 3);
-  const sizes = new Float32Array(particleCount);
+function createClassicDiamond(): THREE.BufferGeometry {
+  // Use octahedron as base, modify for diamond proportions
+  const geometry = new THREE.OctahedronGeometry(1, 2);
   
-  for (let i = 0; i < particleCount; i++) {
-    const i3 = i * 3;
-    const radius = 1.2 + Math.random() * 1.5;
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.random() * Math.PI;
+  const positions = geometry.getAttribute('position');
+  for (let i = 0; i < positions.count; i++) {
+    const y = positions.getY(i);
+    const x = positions.getX(i);
+    const z = positions.getZ(i);
     
-    positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
-    positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-    positions[i3 + 2] = radius * Math.cos(phi);
-    
-    sizes[i] = 0.02 + Math.random() * 0.03;
+    if (y > 0) {
+      // Crown - flatter top (table)
+      positions.setY(i, y * 0.35);
+      positions.setX(i, x * 1.15);
+      positions.setZ(i, z * 1.15);
+    } else {
+      // Pavilion - pointed bottom
+      positions.setY(i, y * 1.3);
+      positions.setX(i, x * 0.95);
+      positions.setZ(i, z * 0.95);
+    }
   }
   
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-  
-  const material = new THREE.PointsMaterial({
-    size: 0.03,
-    color: 0xFFFFFF,
-    transparent: true,
-    opacity: 0.6,
-    blending: THREE.AdditiveBlending,
-    sizeAttenuation: true,
-  });
-  
-  return new THREE.Points(geometry, material);
+  geometry.computeVertexNormals();
+  return geometry;
 }
 
 // ============================================
-// MAIN COMPONENT
+// SCROLL ROTATION STATE (shared between components)
+// ============================================
+
+interface RotationState {
+  rotationY: number;
+  rotationX: number;
+  scale: number;
+}
+
+const rotationState: RotationState = {
+  rotationY: 0,
+  rotationX: 0.7,
+  scale: 1.2,
+};
+
+// ============================================
+// DIAMOND MESH COMPONENT
+// ============================================
+
+function DiamondMesh() {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const [texture, setTexture] = useState<THREE.Texture | null>(null);
+  
+  // Load HDR environment texture
+  useEffect(() => {
+    const loader = new RGBELoader();
+    loader.load(
+      'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_08_1k.hdr',
+      (hdrTexture) => {
+        hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
+        setTexture(hdrTexture);
+      }
+    );
+  }, []);
+  
+  // Create diamond geometry once
+  const geometry = useRef(createClassicDiamond()).current;
+  
+  // Animation - only scroll-driven, no auto rotation
+  useFrame(() => {
+    if (meshRef.current) {
+      // Smooth interpolation to target rotation
+      meshRef.current.rotation.y = THREE.MathUtils.lerp(
+        meshRef.current.rotation.y,
+        rotationState.rotationY,
+        0.08
+      );
+      meshRef.current.rotation.x = THREE.MathUtils.lerp(
+        meshRef.current.rotation.x,
+        rotationState.rotationX,
+        0.08
+      );
+      
+      // Scale
+      const currentScale = meshRef.current.scale.x;
+      const targetScale = rotationState.scale;
+      const newScale = THREE.MathUtils.lerp(currentScale, targetScale, 0.08);
+      meshRef.current.scale.setScalar(newScale);
+    }
+  });
+  
+  if (!texture) {
+    return (
+      <mesh geometry={geometry} rotation={[0.7, 0, 0]}>
+        <meshStandardMaterial
+          color="#ffffff"
+          transparent
+          opacity={0.5}
+          metalness={0.9}
+          roughness={0.1}
+        />
+      </mesh>
+    );
+  }
+  
+  return (
+    <CubeCamera resolution={256} frames={1} envMap={texture}>
+      {(envMap) => (
+        <mesh
+          ref={meshRef}
+          geometry={geometry}
+          rotation={[0.7, 0, 0]}
+          castShadow
+        >
+          <MeshRefractionMaterial
+            envMap={envMap}
+            bounces={4}
+            aberrationStrength={0.01}
+            ior={2.417}
+            fresnel={1}
+            color="white"
+            toneMapped={false}
+          />
+        </mesh>
+      )}
+    </CubeCamera>
+  );
+}
+
+// ============================================
+// SCENE COMPONENT
+// ============================================
+
+function Scene() {
+  return (
+    <>
+      {/* Lighting */}
+      <ambientLight intensity={0.6} />
+      <spotLight
+        position={[5, 5, -10]}
+        angle={0.15}
+        penumbra={1}
+        intensity={2.5}
+        castShadow
+      />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} />
+      <pointLight position={[10, 10, 10]} intensity={0.4} color="#ffd700" />
+      <directionalLight position={[0, 10, 5]} intensity={1} />
+      
+      {/* Diamond */}
+      <DiamondMesh />
+      
+      {/* Environment for reflections */}
+      <Environment
+        files="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_08_1k.hdr"
+        background={false}
+      />
+      
+      {/* Post-processing */}
+      <EffectComposer>
+        <Bloom
+          luminanceThreshold={0.8}
+          intensity={0.6}
+          levels={9}
+          mipmapBlur
+        />
+      </EffectComposer>
+    </>
+  );
+}
+
+// ============================================
+// LOADING FALLBACK
+// ============================================
+
+function LoadingFallback() {
+  return (
+    <mesh rotation={[0.7, 0, 0]}>
+      <octahedronGeometry args={[1, 0]} />
+      <meshStandardMaterial
+        color="#ffffff"
+        transparent
+        opacity={0.3}
+        wireframe
+      />
+    </mesh>
+  );
+}
+
+// ============================================
+// MAIN COMPONENT WITH WAYPOINT SYSTEM
 // ============================================
 
 export function Diamond3D({ className = '' }: Diamond3DProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const diamondRef = useRef<THREE.Mesh | null>(null);
-  const sparklesRef = useRef<THREE.Points | null>(null);
-  const lightsRef = useRef<THREE.PointLight[]>([]);
-  const animationIdRef = useRef<number>(0);
-  const timeRef = useRef(0);
-
-  const initScene = useCallback(() => {
-    if (!canvasRef.current) return;
-
-    // Scene
-    const scene = new THREE.Scene();
-    sceneRef.current = scene;
-
-    // Camera
-    const camera = new THREE.PerspectiveCamera(
-      45,
-      canvasRef.current.clientWidth / canvasRef.current.clientHeight,
-      0.1,
-      100
-    );
-    camera.position.set(0, 0, 4);
-    camera.lookAt(0, 0, 0);
-    cameraRef.current = camera;
-
-    // Renderer with high quality settings
-    const renderer = new THREE.WebGLRenderer({
-      canvas: canvasRef.current,
-      alpha: true,
-      antialias: true,
-      powerPreference: 'high-performance',
-    });
-    renderer.setSize(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.5;
-    rendererRef.current = renderer;
-
-    // ============================================
-    // PREMIUM LIGHTING FOR DIAMOND SPARKLE
-    // ============================================
-    
-    // Ambient light - base illumination
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-    scene.add(ambientLight);
-
-    // Main spotlight from top for sparkle
-    const spotLight = new THREE.SpotLight(0xffffff, 3);
-    spotLight.position.set(0, 5, 2);
-    spotLight.angle = Math.PI / 6;
-    spotLight.penumbra = 0.3;
-    spotLight.decay = 1.5;
-    scene.add(spotLight);
-
-    // Point lights around diamond for refraction effects
-    const lightPositions = [
-      { pos: [2, 1, 2], color: 0xffffff, intensity: 1.5 },
-      { pos: [-2, 1, 2], color: WARM_WHITE, intensity: 1.2 },
-      { pos: [0, -2, 2], color: GOLD_TINT, intensity: 0.8 },
-      { pos: [1, 2, -1], color: 0xffffff, intensity: 1 },
-    ];
-
-    lightPositions.forEach(({ pos, color, intensity }) => {
-      const light = new THREE.PointLight(color, intensity, 10);
-      light.position.set(pos[0], pos[1], pos[2]);
-      scene.add(light);
-      lightsRef.current.push(light);
-    });
-
-    // ============================================
-    // CREATE DIAMOND
-    // ============================================
-    
-    // Use Octahedron for classic diamond shape
-    const diamondGeometry = new THREE.OctahedronGeometry(0.8, 0);
-    
-    // Stretch to make more diamond-like proportions
-    diamondGeometry.scale(1, 1.3, 1);
-    
-    // Premium glass/crystal material
-    const diamondMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      metalness: 0.1,
-      roughness: 0.05,
-      transmission: 0.9,
-      thickness: 0.5,
-      envMapIntensity: 2,
-      clearcoat: 1,
-      clearcoatRoughness: 0.1,
-      ior: 2.4, // Diamond refractive index
-      reflectivity: 1,
-      transparent: true,
-      opacity: 0.95,
-    });
-
-    const diamond = new THREE.Mesh(diamondGeometry, diamondMaterial);
-    diamondRef.current = diamond;
-    scene.add(diamond);
-
-    // Inner faceted core for extra sparkle
-    const innerGeometry = new THREE.OctahedronGeometry(0.5, 1);
-    innerGeometry.scale(1, 1.3, 1);
-    
-    const innerMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0xFFD700,
-      metalness: 0.3,
-      roughness: 0.1,
-      transmission: 0.7,
-      thickness: 0.3,
-      emissive: 0xFFD700,
-      emissiveIntensity: 0.05,
-      transparent: true,
-      opacity: 0.3,
-    });
-
-    const innerDiamond = new THREE.Mesh(innerGeometry, innerMaterial);
-    diamond.add(innerDiamond);
-
-    // Edge highlights using EdgesGeometry
-    const edgesGeometry = new THREE.EdgesGeometry(diamondGeometry);
-    const edgesMaterial = new THREE.LineBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.3,
-    });
-    const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
-    diamond.add(edges);
-
-    // Sparkle particles
-    const sparkles = createSparkles();
-    sparklesRef.current = sparkles;
-    scene.add(sparkles);
-
-    // Environment map for reflections (simple cube)
-    const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256);
-    const cubeCamera = new THREE.CubeCamera(0.1, 10, cubeRenderTarget);
-    scene.add(cubeCamera);
-
-  }, []);
-
-  const animate = useCallback(() => {
-    if (!sceneRef.current || !cameraRef.current || !rendererRef.current) return;
-
-    timeRef.current += 0.016;
-    const time = timeRef.current;
-
-    if (diamondRef.current) {
-      // ============================================
-      // SLOW ELEGANT ROTATION
-      // ============================================
-      diamondRef.current.rotation.y += 0.005;
-      diamondRef.current.rotation.x = Math.sin(time * 0.3) * 0.1;
-      
-      // Gentle floating motion
-      diamondRef.current.position.y = Math.sin(time * 0.5) * 0.1;
-    }
-
-    // ============================================
-    // ANIMATE LIGHTS FOR SPARKLE EFFECT
-    // ============================================
-    lightsRef.current.forEach((light, i) => {
-      const offset = i * Math.PI * 0.5;
-      light.intensity = 1 + Math.sin(time * 2 + offset) * 0.5;
-    });
-
-    // ============================================
-    // SPARKLES ANIMATION
-    // ============================================
-    if (sparklesRef.current) {
-      sparklesRef.current.rotation.y = time * 0.1;
-      sparklesRef.current.rotation.x = Math.sin(time * 0.2) * 0.1;
-      
-      const pMat = sparklesRef.current.material as THREE.PointsMaterial;
-      pMat.opacity = 0.4 + Math.sin(time * 1.5) * 0.2;
-    }
-
-    rendererRef.current.render(sceneRef.current, cameraRef.current);
-    animationIdRef.current = requestAnimationFrame(animate);
-  }, []);
-
-  const handleResize = useCallback(() => {
-    if (!canvasRef.current || !cameraRef.current || !rendererRef.current) return;
-
-    const width = canvasRef.current.clientWidth;
-    const height = canvasRef.current.clientHeight;
-
-    cameraRef.current.aspect = width / height;
-    cameraRef.current.updateProjectionMatrix();
-    rendererRef.current.setSize(width, height);
-  }, []);
-
   useEffect(() => {
-    initScene();
-    animate();
-
-    window.addEventListener('resize', handleResize);
-
+    // Setup scroll-driven rotation
+    const st = ScrollTrigger.create({
+      trigger: '#nosotros',
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 1,
+      onUpdate: (self) => {
+        rotationState.rotationY = self.progress * Math.PI * 4;
+        rotationState.rotationX = 0.5 + Math.sin(self.progress * Math.PI * 2) * 0.3;
+        rotationState.scale = 1.4 + Math.sin(self.progress * Math.PI) * 0.2;
+      },
+    });
+    
     return () => {
-      cancelAnimationFrame(animationIdRef.current);
-      window.removeEventListener('resize', handleResize);
-      
-      if (rendererRef.current) {
-        rendererRef.current.dispose();
-      }
-      if (sceneRef.current) {
-        sceneRef.current.traverse((object) => {
-          if (object instanceof THREE.Mesh) {
-            object.geometry.dispose();
-            if (object.material instanceof THREE.Material) {
-              object.material.dispose();
-            }
-          }
-        });
-      }
+      st.kill();
     };
-  }, [initScene, animate, handleResize]);
-
+  }, []);
+  
   return (
-    <canvas
-      ref={canvasRef}
-      className={`w-full h-full ${className}`}
-      style={{ background: 'transparent' }}
-    />
+    <div className={`w-full h-full ${className}`}>
+      <Canvas
+        camera={{ position: [0, 0, 4.5], fov: 45 }}
+        gl={{
+          antialias: true,
+          alpha: true,
+          premultipliedAlpha: false,
+          powerPreference: 'high-performance',
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.5,
+        }}
+        style={{ 
+          background: 'transparent',
+          pointerEvents: 'none'
+        }}
+      >
+        <color attach="background" args={[0, 0, 0, 0]} />
+        <Suspense fallback={<LoadingFallback />}>
+          <Scene />
+        </Suspense>
+      </Canvas>
+    </div>
   );
 }
+
+// Remove the DiamondMarker component (no longer needed)
