@@ -129,3 +129,58 @@ enum RecordType {
   FOLLOW_UP       // Seguimiento
   EMERGENCY       // Atención de emergencia
 }
+
+/**
+ * Modelo Service - Servicios ofrecidos
+ */
+model Service {
+  id              String      @id @default(cuid())
+  title           String
+  eyebrow         String      // Texto superior (ej: "Experiencia Premium")
+  description     String
+  icon            String      // Nombre del ícono de Lucide React
+  isPremium       Boolean     @default(false)
+  order           Int         @unique // Orden de visualización
+  isActive        Boolean     @default(true)
+  
+  // Metadata
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  // Relaciones
+  treatments      Treatment[]
+  
+  @@map("services")
+  @@index([order])
+  @@index([isActive])
+}
+
+/**
+ * Modelo Treatment - Tratamientos específicos de cada servicio
+ */
+model Treatment {
+  id              String      @id @default(cuid())
+  
+  // Relación con servicio
+  serviceId       String
+  service         Service     @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  
+  // Información del tratamiento
+  name            String
+  description     String
+  icon            String      // Nombre del ícono de Lucide React
+  benefits        String[]    // Array de beneficios
+  duration        String      // Duración estimada
+  price           String      // Precio desde
+  order           Int         // Orden dentro del servicio
+  isActive        Boolean     @default(true)
+  
+  // Metadata
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  @@map("treatments")
+  @@index([serviceId])
+  @@index([order])
+  @@index([isActive])
+}

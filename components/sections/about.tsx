@@ -83,7 +83,7 @@ export function About() {
     <section
       id="nosotros"
       ref={sectionRef}
-      className="min-h-[200vh] w-full bg-white relative overflow-hidden"
+      className="min-h-[200vh] w-full bg-black relative overflow-hidden"
     >
       <div className="container-custom py-12">
         <div className="flex flex-col md:flex-row justify-center items-start gap-8 md:gap-16">
@@ -93,7 +93,7 @@ export function About() {
             className="w-full md:w-1/2 md:sticky md:top-20"
           >
             <div className="border-l-4 border-primary-500 pl-6 py-4">
-              <h2 className="text-5xl md:text-6xl lg:text-7xl font-heading font-black text-secondary-900 leading-[0.85]">
+              <h2 className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-white leading-tight">
                 <span className="block">Sobre</span>
                 <span className="block text-primary-500">Nan</span>
                 <span className="block">Estetik</span>
@@ -107,16 +107,16 @@ export function About() {
                 return (
                   <div
                     key={stat.value}
-                    className="flex items-center gap-4 p-4 bg-secondary-50 rounded-xl border border-secondary-100 hover:border-primary-300 transition-colors"
+                    className="flex items-center gap-4 p-4 bg-gray-800/50 rounded-xl border border-primary-500/20 hover:border-primary-500/40 transition-colors"
                   >
-                    <div className="flex-shrink-0 w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-                      <Icon className="text-primary-600" size={24} />
+                    <div className="flex-shrink-0 w-12 h-12 bg-primary-500/20 rounded-full flex items-center justify-center">
+                      <Icon className="text-primary-400" size={24} />
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-primary-600">
+                      <div className="text-2xl font-bold text-primary-400">
                         {stat.value}
                       </div>
-                      <div className="text-sm text-secondary-600">
+                      <div className="text-sm text-gray-400">
                         {stat.label}
                       </div>
                     </div>
@@ -132,10 +132,10 @@ export function About() {
             className="w-full md:w-[45%] space-y-48 md:space-y-64 pt-8 md:pt-0"
           >
             <div className="vertical-item">
-              <h3 className="text-xl font-bold text-primary-600 uppercase tracking-wide mb-4">
+              <h3 className="text-xl font-bold text-primary-400 uppercase tracking-wide mb-4">
                 Nuestra Misión
               </h3>
-              <p className="text-lg text-secondary-700 leading-relaxed">
+              <p className="text-lg text-gray-300 leading-relaxed">
                 En Nan Estetik, nos dedicamos a realzar tu belleza natural a través
                 de tratamientos estéticos de vanguardia. Nuestro equipo de
                 profesionales certificados combina experiencia, tecnología avanzada
@@ -155,10 +155,10 @@ export function About() {
             </div>
 
             <div className="vertical-item">
-              <h3 className="text-xl font-bold text-primary-600 uppercase tracking-wide mb-4">
+              <h3 className="text-xl font-bold text-primary-400 uppercase tracking-wide mb-4">
                 Tecnología Avanzada
               </h3>
-              <p className="text-lg text-secondary-700 leading-relaxed">
+              <p className="text-lg text-gray-300 leading-relaxed">
                 Utilizamos los equipos más modernos y técnicas innovadoras del mercado
                 para garantizar resultados excepcionales con la máxima seguridad y
                 confort durante cada procedimiento.
@@ -166,10 +166,10 @@ export function About() {
             </div>
 
             <div className="vertical-item">
-              <h3 className="text-xl font-bold text-primary-600 uppercase tracking-wide mb-4">
+              <h3 className="text-xl font-bold text-primary-400 uppercase tracking-wide mb-4">
                 Compromiso Total
               </h3>
-              <p className="text-lg text-secondary-700 leading-relaxed">
+              <p className="text-lg text-gray-300 leading-relaxed">
                 Desde tu primera consulta hasta el seguimiento post-tratamiento,
                 estamos comprometidos con tu bienestar. Nuestro equipo está siempre
                 disponible para resolver tus dudas y acompañarte en tu transformación.

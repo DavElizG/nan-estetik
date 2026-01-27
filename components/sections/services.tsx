@@ -5,6 +5,7 @@
  * - Layered pinning - los paneles se apilan uno encima del otro
  * - Grid de servicios ofrecidos
  * - Animaciones interactivas con GSAP ScrollTrigger
+ * - Datos consumidos desde API de PostgreSQL
  */
 
 'use client';
@@ -13,15 +14,47 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Sparkles, Droplet, Zap, Star, Sun, Check, X as CloseIcon } from 'lucide-react';
+import type { Service as ServiceType } from '@/types/service';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Map de iconos disponibles
+const iconMap: { [key: string]: any } = {
+  Sparkles,
+  Droplet,
+  Zap,
+  Star,
+  Sun,
+};
 
 export function Services() {
   const sectionRef = useRef<HTMLElement>(null);
   const [expandedService, setExpandedService] = useState<string | null>(null);
   const [selectedTreatment, setSelectedTreatment] = useState<string | null>(null);
+  const [services, setServices] = useState<ServiceType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch services from API
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await fetch('/api/services');
+        if (!response.ok) throw new Error('Error al cargar servicios');
+        const data = await response.json();
+        setServices(data);
+      } catch (error) {
+        console.error('Error fetching services:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   useEffect(() => {
+    if (loading || services.length === 0) return;
+
     const ctx = gsap.context(() => {
       // Layered pinning - cada panel se pega en la parte superior
       const panels = gsap.utils.toArray('.service-panel');
@@ -35,62 +68,68 @@ export function Services() {
         });
       });
 
-      // Animación de entrada para el primer servicio (Tratamientos Faciales)
-      const firstService = document.querySelector('[data-service="Tratamientos Faciales"]');
-      if (firstService) {
-        // Título con reveal
-        gsap.from(firstService.querySelector('.service-title'), {
-          scrollTrigger: {
-            trigger: firstService,
-            start: 'top 80%',
-          },
-          y: 100,
-          opacity: 0,
-          duration: 1,
-          ease: 'power3.out',
-        });
+      // Animación de entrada para cada servicio
+      services.forEach((service, index) => {
+        const serviceElement = document.querySelector(`[data-service="${service.title}"]`);
+        if (serviceElement) {
+          // Título con reveal
+          gsap.from(serviceElement.querySelector('.service-title'), {
+            scrollTrigger: {
+              trigger: serviceElement,
+              start: 'top 80%',
+            },
+            y: 100,
+            opacity: 0,
+            duration: 1,
+            ease: 'power3.out',
+          });
 
-        // Ícono con scale
-        gsap.from(firstService.querySelector('.service-icon'), {
-          scrollTrigger: {
-            trigger: firstService,
-            start: 'top 80%',
-          },
-          scale: 0,
-          opacity: 0,
-          duration: 0.8,
-          ease: 'back.out(1.7)',
-        });
+          // Ícono con scale
+          gsap.from(serviceElement.querySelector('.service-icon'), {
+            scrollTrigger: {
+              trigger: serviceElement,
+              start: 'top 80%',
+            },
+            scale: 0,
+            opacity: 0,
+            duration: 0.8,
+            ease: 'back.out(1.7)',
+          });
 
-        // Badges en stagger
-        gsap.from(firstService.querySelectorAll('.treatment-badge'), {
-          scrollTrigger: {
-            trigger: firstService,
-            start: 'top 70%',
-          },
-          y: 50,
-          opacity: 0,
-          duration: 0.6,
-          stagger: 0.15,
-          ease: 'power3.out',
-        });
+          // Badges en stagger
+          const badges = serviceElement.querySelectorAll('.treatment-badge');
+          if (badges.length > 0) {
+            gsap.set(badges, { opacity: 1, y: 0 });
+            gsap.from(badges, {
+              scrollTrigger: {
+                trigger: serviceElement,
+                start: 'top 70%',
+              },
+              y: 30,
+              opacity: 0,
+              duration: 0.6,
+              stagger: 0.15,
+              ease: 'power3.out',
+            });
+          }
 
-        // Parallax sutil en elementos decorativos
-        gsap.to(firstService.querySelectorAll('.decorative-element'), {
-          scrollTrigger: {
-            trigger: firstService,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 1,
-          },
-          y: 100,
-          ease: 'none',
-        });
-      }
+          // Parallax sutil en elementos decorativos
+          gsap.to(serviceElement.querySelectorAll('.decorative-element'), {
+            scrollTrigger: {
+              trigger: serviceElement,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1,
+            },
+            y: 100,
+            ease: 'none',
+          });
+        }
+      });
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [loading, services]);
 
   const handleTreatmentClick = (serviceName: string, treatment: string) => {
     const serviceElement = document.querySelector(`[data-service="${serviceName}"]`);
@@ -112,7 +151,7 @@ export function Services() {
       });
       setSelectedTreatment(null);
     } else {
-      // Abrir - ajustado para mantener todo en viewport
+      // Abrir
       gsap.to(serviceElement.querySelector('.main-content'), {
         x: 0,
         width: '48%',
@@ -128,6 +167,17 @@ export function Services() {
       setSelectedTreatment(treatment);
     }
   };
+
+  if (loading) {
+    return (
+      <section id="servicios" className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-white text-lg">Cargando servicios...</p>
+        </div>
+      </section>
+    );
+  }
 
   const handleMoreInfo = (serviceTitle: string) => {
     const serviceElement = document.querySelector(`[data-service="${serviceTitle}"]`);
@@ -154,59 +204,6 @@ export function Services() {
     }
   };
 
-  const services = [
-    {
-      icon: Sparkles,
-      title: 'Tratamientos Faciales',
-      eyebrow: 'Experiencia Premium',
-      description:
-        'Limpiezas profundas, peeling químico, microdermabrasión y más para renovar tu piel.',
-      features: ['Limpieza profunda', 'Hidratación', 'Rejuvenecimiento'],
-      premium: true,
-      treatments: {
-        'Limpieza profunda': {
-          description: 'Limpieza facial profunda que elimina impurezas y células muertas, dejando tu piel radiante y renovada.',
-          benefits: ['Elimina puntos negros', 'Destapa poros', 'Mejora textura de la piel', 'Preparación ideal para otros tratamientos'],
-          duration: '60 minutos',
-          price: 'Desde $80',
-        },
-        'Hidratación': {
-          description: 'Tratamiento intensivo de hidratación que restaura la humedad natural de tu piel con ácido hialurónico y vitaminas.',
-          benefits: ['Hidratación profunda', 'Reduce líneas finas', 'Mejora elasticidad', 'Brillo natural'],
-          duration: '45 minutos',
-          price: 'Desde $90',
-        },
-        'Rejuvenecimiento': {
-          description: 'Tratamiento anti-edad que estimula la producción de colágeno y reduce los signos visibles del envejecimiento.',
-          benefits: ['Reduce arrugas', 'Estimula colágeno', 'Tensado de piel', 'Efecto lifting natural'],
-          duration: '90 minutos',
-          price: 'Desde $150',
-        },
-      },
-    },
-    {
-      icon: Droplet,
-      title: 'Rellenos y Botox',
-      description:
-        'Aplicación de ácido hialurónico y toxina botulínica para resultados naturales.',
-      features: ['Rellenos labiales', 'Botox', 'Eliminación de arrugas'],
-    },
-    {
-      icon: Zap,
-      title: 'Tratamientos Corporales',
-      description:
-        'Procedimientos para moldear y tonificar tu figura con tecnología avanzada.',
-      features: ['Reducción de grasa', 'Tonificación', 'Reafirmación'],
-    },
-    {
-      icon: Star,
-      title: 'Tratamientos Especiales',
-      description:
-        'Servicios personalizados y paquetes premium para ocasiones especiales.',
-      features: ['Novias', 'Eventos', 'Tratamientos VIP'],
-    },
-  ];
-
   return (
     <section
       id="servicios"
@@ -214,13 +211,13 @@ export function Services() {
       className="relative"
     >
       {/* Título principal - aparece primero */}
-      <div className="h-screen flex items-center justify-center bg-white service-panel">
+      <div className="h-screen flex items-center justify-center bg-black service-panel">
         <div className="text-center">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-secondary-900 mb-4">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white mb-4">
             Nuestros Servicios
           </h2>
           <div className="w-24 h-1 bg-primary-500 mx-auto mb-4" />
-          <p className="text-lg md:text-xl text-secondary-600 max-w-3xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
             Ofrecemos una amplia gama de tratamientos estéticos diseñados para
             realzar tu belleza natural y mejorar tu confianza.
           </p>
@@ -229,242 +226,182 @@ export function Services() {
 
       {/* Paneles de servicios - se apilan uno encima del otro */}
       {services.map((service, index) => {
-        const Icon = service.icon;
-        const bgColors = ['bg-gradient-to-br from-[#f5e6d3] via-[#faf6f0] to-[#fff8f0]', 'bg-white', 'bg-secondary-100', 'bg-white'];
+        const Icon = iconMap[service.icon] || Sparkles;
+        const bgColors = [
+          'bg-gradient-to-br from-gray-900 via-black to-gray-800',
+          'bg-gradient-to-br from-black via-gray-900 to-black',
+          'bg-gradient-to-br from-gray-800 via-black to-gray-900',
+          'bg-gradient-to-br from-black via-gray-800 to-gray-900'
+        ];
         
-        // Diseño premium solo para Tratamientos Faciales
-        if (service.title === 'Tratamientos Faciales') {
-          // Íconos para cada tratamiento (NO emojis)
-          const treatmentIcons = {
-            'Limpieza profunda': Sparkles,
-            'Hidratación intensiva': Droplet,
-            'Rejuvenecimiento': Sun
-          };
+        // Alternar posición del contenido: par = derecha, impar = izquierda
+        const isContentRight = index % 2 === 0;
           
-          return (
-            <div
-              key={service.title}
-              data-service={service.title}
-              className={`service-panel min-h-screen flex items-center justify-center ${bgColors[index % bgColors.length]} overflow-visible relative py-20`}
-            >
-              {/* Elementos decorativos */}
-              <div className="absolute top-20 right-20 w-64 h-64 bg-primary-400/10 rounded-full blur-3xl decorative-element" />
-              <div className="absolute bottom-20 left-20 w-96 h-96 bg-primary-300/10 rounded-full blur-3xl decorative-element" />
-              
-              {/* Curvas decorativas doradas */}
-              <svg className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" viewBox="0 0 1440 800">
-                <path d="M0,300 Q400,200 800,300 T1440,300" fill="none" stroke="#d4af37" strokeWidth="2"/>
-                <path d="M0,500 Q600,400 1200,500" fill="none" stroke="#d4af37" strokeWidth="1"/>
-              </svg>
-
-              {/* Contenedor con max-width para mantener todo en viewport */}
-              <div className="container mx-auto max-w-7xl px-6 lg:px-8 w-full relative z-10">
-                <div className="w-full flex gap-8">{/* Contenido principal - lado izquierdo */}
-                  <div className="main-content transition-all duration-700 flex-shrink-0" style={{ width: '100%' }}>
-                    <div className="max-w-2xl">
-                      {/* Eyebrow text */}
-                      <span className="service-icon text-xs uppercase tracking-[0.3em] text-primary-600 font-semibold mb-3 block">
-                        {service.eyebrow}
-                      </span>
-
-                      {/* Título con tipografía elegante */}
-                      <h3 className="service-title text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-secondary-900 mb-4 leading-tight">
-                        {service.title}
-                      </h3>
-
-                      {/* Descripción */}
-                      <p className="text-lg md:text-xl text-secondary-600/90 mb-6 leading-relaxed">
-                        {service.description}
-                      </p>
-
-                      {/* Badge premium */}
-                      {service.premium && (
-                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-full text-sm font-semibold mb-4">
-                          <Star size={16} className="animate-pulse" />
-                          Tratamiento Premium
-                        </span>
-                      )}
-                      
-                      {/* Tratamientos clickeables con íconos SVG */}
-                      <div className="space-y-3">
-                        {service.features.map((feature) => {
-                          const TreatmentIcon = treatmentIcons[feature as keyof typeof treatmentIcons] || Sparkles;
-                          return (
-                            <button
-                              key={feature}
-                              onClick={() => handleTreatmentClick(service.title, feature)}
-                              className={`treatment-badge group w-full text-left px-6 py-4 rounded-xl border-2 transition-all duration-300 ${
-                                selectedTreatment === feature
-                                  ? 'bg-primary-500 border-primary-500 text-white shadow-xl scale-105'
-                                  : 'bg-white/80 backdrop-blur-sm border-primary-400/30 text-secondary-900 hover:border-primary-500 hover:shadow-lg hover:scale-[1.02]'
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-lg transition-all ${
-                                  selectedTreatment === feature ? 'bg-white/20' : 'bg-primary-50'
-                                }`}>
-                                  <TreatmentIcon 
-                                    size={20} 
-                                    className={selectedTreatment === feature ? 'text-white' : 'text-primary-600'}
-                                  />
-                                </div>
-                                <span className="text-base font-semibold flex-1">{feature}</span>
-                                <span className="text-sm opacity-70 group-hover:translate-x-1 transition-transform">→</span>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Panel de detalles - aparece desde la derecha */}
-                  <div 
-                    className="detail-panel fixed inset-y-0 right-0 bg-white shadow-2xl flex items-center overflow-y-auto z-50"
-                    style={{ 
-                      transform: 'translateX(100%)', 
-                      opacity: 0,
-                      width: '50%',
-                      maxWidth: '600px'
-                    }}
-                  >
-                    {selectedTreatment && service.treatments?.[selectedTreatment as keyof typeof service.treatments] && (
-                      <div className="w-full px-8 py-12 lg:px-12">
-                        {/* Botón cerrar con ícono SVG */}
-                        <button
-                          onClick={() => handleTreatmentClick(service.title, selectedTreatment)}
-                          className="absolute top-8 right-8 w-10 h-10 flex items-center justify-center rounded-full bg-secondary-100 hover:bg-secondary-200 transition-all hover:scale-110 group"
-                          aria-label="Cerrar panel"
-                        >
-                          <CloseIcon size={20} className="text-secondary-700 group-hover:text-secondary-900" />
-                        </button>
-
-                        <div className="max-w-lg mx-auto">
-                          <h4 className="text-3xl lg:text-4xl font-heading font-bold text-secondary-900 mb-4">
-                            {selectedTreatment}
-                          </h4>
-                          <p className="text-base lg:text-lg text-secondary-600 mb-8 leading-relaxed">
-                            {service.treatments[selectedTreatment as keyof typeof service.treatments].description}
-                          </p>
-
-                          {/* Beneficios con íconos SVG */}
-                          <h5 className="text-sm uppercase tracking-wider text-primary-600 font-semibold mb-4">
-                            Beneficios
-                          </h5>
-                          <ul className="space-y-3 mb-8">
-                            {service.treatments[selectedTreatment as keyof typeof service.treatments].benefits.map((benefit: string) => (
-                              <li key={benefit} className="flex items-start gap-3 text-secondary-700">
-                                <Check size={20} className="text-primary-500 flex-shrink-0 mt-0.5" />
-                                <span className="text-base">{benefit}</span>
-                              </li>
-                            ))}
-                          </ul>
-
-                          {/* Info adicional */}
-                          <div className="flex gap-8 mb-8 pb-8 border-b border-secondary-200">
-                            <div>
-                              <p className="text-sm text-secondary-500 mb-1">Duración</p>
-                              <p className="font-semibold text-secondary-900">{service.treatments[selectedTreatment as keyof typeof service.treatments].duration}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-secondary-500 mb-1">Precio</p>
-                              <p className="font-semibold text-primary-600">{service.treatments[selectedTreatment as keyof typeof service.treatments].price}</p>
-                            </div>
-                          </div>
-
-                          {/* CTA */}
-                          <button className="btn-primary w-full">
-                            Reservar Tratamiento
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        }
-
-        // Diseño estándar para otros servicios
         return (
           <div
-            key={service.title}
+            key={service.id}
             data-service={service.title}
-            className={`service-panel h-screen flex items-center justify-center ${bgColors[index % bgColors.length]} overflow-hidden`}
+            className={`service-panel min-h-screen flex items-center justify-center ${bgColors[index % bgColors.length]} overflow-visible relative py-20`}
           >
-            <div className="container-custom max-w-6xl px-8 w-full">
-              {/* Contenido principal - centrado */}
-              <div className="main-content w-full text-center">
-                {/* Icono grande centrado */}
-                <div className="flex justify-center mb-8">
-                  <div className="w-28 h-28 md:w-36 md:h-36 bg-primary-500 rounded-full flex items-center justify-center shadow-lg">
-                    <Icon className="text-white" size={64} />
-                  </div>
-                </div>
+            {/* Elementos decorativos */}
+            <div className="absolute top-20 right-20 w-64 h-64 bg-primary-400/10 rounded-full blur-3xl decorative-element" />
+            <div className="absolute bottom-20 left-20 w-96 h-96 bg-primary-300/10 rounded-full blur-3xl decorative-element" />
+            
+            {/* Curvas decorativas doradas */}
+            <svg className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" viewBox="0 0 1440 800">
+              <path d="M0,300 Q400,200 800,300 T1440,300" fill="none" stroke="#d4af37" strokeWidth="2"/>
+              <path d="M0,500 Q600,400 1200,500" fill="none" stroke="#d4af37" strokeWidth="1"/>
+            </svg>
 
-                {/* Título y descripción */}
-                <h3 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-secondary-900 mb-6">
-                  {service.title}
-                </h3>
-                <p className="text-xl md:text-2xl text-secondary-600 mb-10 max-w-3xl mx-auto">
-                  {service.description}
-                </p>
-                
-                {/* Features como badges centrados */}
-                <div className="flex flex-wrap gap-4 mb-10 justify-center">
-                  {service.features.map((feature) => (
-                    <span
-                      key={feature}
-                      className="px-6 py-3 bg-white border-2 border-primary-500 text-secondary-900 rounded-full text-base font-medium shadow-sm"
-                    >
-                      {feature}
+            {/* Contenedor con max-width para mantener todo en viewport */}
+            <div className="container mx-auto max-w-7xl px-6 lg:px-8 w-full relative z-10">
+              <div className={`w-full flex gap-8 ${isContentRight ? 'flex-row-reverse' : 'flex-row'}`}>
+                {/* Contenido principal */}
+                <div className="main-content transition-all duration-700 flex-shrink-0" style={{ width: '100%' }}>
+                  <div className="max-w-2xl">
+                    {/* Eyebrow text */}
+                    <span className="service-icon text-xs uppercase tracking-[0.3em] text-primary-400 font-semibold mb-3 block">
+                      {service.eyebrow}
                     </span>
-                  ))}
-                </div>
 
-                {/* Botón */}
-                <button
-                  onClick={() => handleMoreInfo(service.title)}
-                  className="group inline-flex items-center gap-2 text-primary-600 font-bold text-lg hover:text-primary-500 transition-colors"
-                >
-                  {expandedService === service.title ? 'Ocultar detalles' : 'Ver detalles'}
-                  <span className="group-hover:scale-110 transition-transform">
-                    {expandedService === service.title ? '↑' : '↓'}
-                  </span>
-                </button>
-              </div>
+                    {/* Título con tipografía elegante */}
+                    <h3 className="service-title text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white mb-4 leading-tight">
+                      {service.title}
+                    </h3>
 
-              {/* Contenido extra - se expande debajo */}
-              <div 
-                className="extra-content overflow-hidden text-center mt-8"
-                style={{ height: 0, opacity: 0 }}
-              >
-                <div className="border-t-2 border-primary-500 pt-8 max-w-4xl mx-auto">
-                  <h4 className="text-2xl md:text-3xl font-heading font-bold text-secondary-900 mb-6">
-                    Detalles del Tratamiento
-                  </h4>
-                  <div className="grid md:grid-cols-2 gap-6 text-left">
-                    <div className="flex items-start gap-3">
-                      <span className="text-primary-500 text-xl">✓</span>
-                      <p className="text-secondary-700 text-lg">Procedimiento personalizado según tus necesidades</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="text-primary-500 text-xl">✓</span>
-                      <p className="text-secondary-700 text-lg">Realizado por profesionales certificados</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="text-primary-500 text-xl">✓</span>
-                      <p className="text-secondary-700 text-lg">Tecnología de última generación</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="text-primary-500 text-xl">✓</span>
-                      <p className="text-secondary-700 text-lg">Resultados visibles desde la primera sesión</p>
+                    {/* Descripción */}
+                    <p className="text-lg md:text-xl text-gray-300 mb-6 leading-relaxed">
+                      {service.description}
+                    </p>
+
+                    {/* Badge premium */}
+                    {service.isPremium && (
+                      <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-full text-sm font-semibold mb-4">
+                        <Star size={16} className="animate-pulse" />
+                        Tratamiento Premium
+                      </span>
+                    )}
+                    
+                    {/* Tratamientos clickeables con íconos SVG */}
+                    <div className="space-y-4" style={{ opacity: 1, visibility: 'visible' }}>
+                      {service.treatments.map((treatment) => {
+                        const TreatmentIcon = iconMap[treatment.icon] || Sparkles;
+                        return (
+                          <button
+                            key={treatment.id}
+                            onClick={() => handleTreatmentClick(service.title, treatment.name)}
+                            style={{ opacity: 1, visibility: 'visible' }}
+                            className={`treatment-badge group relative w-full text-left px-8 py-6 rounded-2xl transition-all duration-500 overflow-hidden ${
+                              selectedTreatment === treatment.name
+                                ? 'bg-gradient-to-r from-primary-500 to-primary-600 border-2 border-primary-700 text-white shadow-2xl scale-[1.02]'
+                                : 'bg-gradient-to-br from-white via-white to-primary-50/30 border-2 border-primary-400/40 text-secondary-900 hover:border-primary-500 hover:shadow-2xl hover:scale-[1.02] hover:from-primary-50 hover:to-white shadow-lg'
+                            }`}
+                          >
+                            {/* Efecto de brillo sutil */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                            
+                            <div className="relative flex items-center gap-4">
+                              <div className={`p-3 rounded-xl transition-all duration-300 ${
+                                selectedTreatment === treatment.name 
+                                  ? 'bg-white/20 shadow-lg' 
+                                  : 'bg-gradient-to-br from-primary-100 to-primary-50 shadow-md group-hover:shadow-lg group-hover:scale-110'
+                              }`}>
+                                <TreatmentIcon 
+                                  size={24} 
+                                  className={`transition-all duration-300 ${
+                                    selectedTreatment === treatment.name 
+                                      ? 'text-white' 
+                                      : 'text-primary-600 group-hover:text-primary-700'
+                                  }`}
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <span className="text-lg font-bold tracking-tight">{treatment.name}</span>
+                                <div className={`h-0.5 w-0 group-hover:w-full transition-all duration-500 mt-1 ${
+                                  selectedTreatment === treatment.name ? 'bg-white/40' : 'bg-primary-500/30'
+                                }`} />
+                              </div>
+                              <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 ${
+                                selectedTreatment === treatment.name 
+                                  ? 'bg-white/20' 
+                                  : 'bg-primary-100 group-hover:bg-primary-200'
+                              }`}>
+                                <span className="text-base font-bold group-hover:translate-x-1 transition-transform duration-300">→</span>
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                  <button className="btn-primary mt-8">
-                    Agendar Cita
-                  </button>
+                </div>
+
+                {/* Panel de detalles - aparece desde la derecha o izquierda según la posición */}
+                <div 
+                  className={`detail-panel fixed inset-y-0 ${isContentRight ? 'left-0' : 'right-0'} bg-gradient-to-br from-gray-900 via-black to-gray-800 shadow-2xl flex items-center overflow-y-auto z-50`}
+                  style={{ 
+                    transform: isContentRight ? 'translateX(-100%)' : 'translateX(100%)', 
+                    opacity: 0,
+                    width: '50%',
+                    maxWidth: '600px'
+                  }}
+                >
+                  {selectedTreatment && service.treatments.find(t => t.name === selectedTreatment) && (
+                    <div className="w-full px-8 py-12 lg:px-12">
+                      {/* Botón cerrar con ícono SVG */}
+                      <button
+                        onClick={() => handleTreatmentClick(service.title, selectedTreatment)}
+                        className={`absolute top-8 ${isContentRight ? 'right-8' : 'left-8'} w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all hover:scale-110 group`}
+                        aria-label="Cerrar panel"
+                      >
+                        <CloseIcon size={20} className="text-gray-300 group-hover:text-white" />
+                      </button>
+
+                      {(() => {
+                        const treatment = service.treatments.find(t => t.name === selectedTreatment)!;
+                        return (
+                          <div className="max-w-lg mx-auto">
+                            <h4 className="text-3xl lg:text-4xl font-heading font-bold text-white mb-4">
+                              {treatment.name}
+                            </h4>
+                            <p className="text-base lg:text-lg text-gray-300 mb-8 leading-relaxed">
+                              {treatment.description}
+                            </p>
+
+                            {/* Beneficios con íconos SVG */}
+                            <h5 className="text-sm uppercase tracking-wider text-primary-400 font-semibold mb-4">
+                              Beneficios
+                            </h5>
+                            <ul className="space-y-3 mb-8">
+                              {treatment.benefits.map((benefit: string) => (
+                                <li key={benefit} className="flex items-start gap-3 text-gray-300">
+                                  <Check size={20} className="text-primary-400 flex-shrink-0 mt-0.5" />
+                                  <span className="text-base">{benefit}</span>
+                                </li>
+                              ))}
+                            </ul>
+
+                            {/* Info adicional */}
+                            <div className="flex gap-8 mb-8 pb-8 border-b border-white/10">
+                              <div>
+                                <p className="text-sm text-gray-400 mb-1">Duración</p>
+                                <p className="font-semibold text-white">{treatment.duration}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-400 mb-1">Precio</p>
+                                <p className="font-semibold text-primary-400">{treatment.price}</p>
+                              </div>
+                            </div>
+
+                            {/* CTA */}
+                            <button className="btn-primary w-full">
+                              Reservar Tratamiento
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

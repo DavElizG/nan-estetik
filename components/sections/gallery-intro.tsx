@@ -119,7 +119,7 @@ export function GalleryIntro() {
       <section
         id="galeria"
         ref={sectionRef}
-        className="h-screen relative flex items-center justify-center bg-secondary-950"
+        className="h-screen relative flex items-center justify-center bg-black overflow-hidden"
       >
         {/* Texto que hace zoom completo */}
         <div

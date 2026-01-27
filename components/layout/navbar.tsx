@@ -17,6 +17,7 @@ import { gsap } from 'gsap';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true); // Empieza en modo oscuro
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const lastScrollY = useRef(0);
@@ -76,9 +77,9 @@ export function Navbar() {
     <nav
       ref={navRef}
       className={clsx(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
         isScrolled
-          ? 'bg-white shadow-md py-4'
+          ? 'bg-black/70 backdrop-blur-xl py-4 border-b border-white/[0.03]'
           : 'bg-transparent py-6'
       )}
     >
@@ -89,7 +90,9 @@ export function Navbar() {
             href="/"
             className={clsx(
               'text-2xl font-heading font-bold transition-colors',
-              isScrolled ? 'text-secondary-900' : 'text-white'
+              isDarkMode 
+                ? 'text-white' 
+                : isScrolled ? 'text-secondary-900' : 'text-secondary-900'
             )}
           >
             <span className="text-primary-500">Nan</span> Estetik
@@ -103,7 +106,9 @@ export function Navbar() {
                 href={link.href}
                 className={clsx(
                   'font-medium transition-colors hover:text-primary-500',
-                  isScrolled ? 'text-secondary-700' : 'text-white'
+                  isDarkMode 
+                    ? 'text-gray-200' 
+                    : isScrolled ? 'text-secondary-700' : 'text-secondary-900'
                 )}
               >
                 {link.label}
@@ -119,7 +124,7 @@ export function Navbar() {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className={clsx(
               'md:hidden p-2 transition-colors',
-              isScrolled ? 'text-secondary-900' : 'text-white'
+              isDarkMode ? 'text-white' : 'text-secondary-900'
             )}
             aria-label="Toggle menu"
           >

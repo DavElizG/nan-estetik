@@ -108,13 +108,13 @@ export function Hero() {
       {/* Background con parallax - elegante negro con degradado dorado sutil */}
       <div 
         ref={bgRef}
-        className="absolute inset-0 bg-gradient-to-br from-secondary-950 via-secondary-900 to-secondary-800 z-0 will-change-transform"
+        className="absolute inset-0 bg-black z-0 will-change-transform"
         style={{ height: '120vh', top: '-10vh' }}
       >
         {/* Overlay con detalles dorados sutiles */}
         <div 
           ref={overlayRef}
-          className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-primary-900/20 will-change-transform" 
+          className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-primary-500/10 will-change-transform" 
         />
       </div>
 
