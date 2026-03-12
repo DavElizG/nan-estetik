@@ -1,12 +1,12 @@
 /**
- * About Section - Experiencia Inmersiva 3D con Flor Dorada
+ * About Section - Experiencia Inmersiva
  * 
  * Sección extendida "Nosotros" con:
- * - Modelo 3D de flor dorada centrada (simboliza transformación y lujo)
  * - Textos alternando izquierda/derecha
  * - Narrativa extensa (~450vh)
  * - GSAP ScrollTrigger para animaciones sincronizadas
  * - Layout responsive
+ * Nota: El modelo 3D ahora está en ContentWrapper para extenderse a Services
  */
 
 'use client';
@@ -15,15 +15,8 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Award, Users, Heart, Leaf, Shield, Star, Gem, Sparkles } from 'lucide-react';
-import dynamic from 'next/dynamic';
 
 gsap.registerPlugin(ScrollTrigger);
-
-// Importar GoldenFlower3D dinámicamente para evitar SSR issues
-const GoldenFlower3D = dynamic(
-  () => import('@/components/3d/GoldenFlower3D').then((mod) => mod.GoldenFlower3D),
-  { ssr: false, loading: () => <div className="w-full h-full bg-transparent" /> }
-);
 
 // Datos de estadísticas con animación de conteo
 const stats = [
@@ -95,7 +88,6 @@ function AnimatedCounter({
 export function About() {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const flowerContainerRef = useRef<HTMLDivElement>(null);
   const [statsVisible, setStatsVisible] = useState(false);
 
   useEffect(() => {
@@ -200,30 +192,8 @@ export function About() {
     <section
       id="nosotros"
       ref={sectionRef}
-      className="relative bg-black"
-      style={{ minHeight: '450vh' }}
+      className="relative bg-transparent py-20"
     >
-      {/* ============================================ */}
-      {/* FLOR DORADA 3D CENTRADA */}
-      {/* ============================================ */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-        <div 
-          ref={flowerContainerRef}
-          className="sticky top-0 h-screen w-full pointer-events-none z-10 flex items-center justify-center"
-        >
-          {/* Glow de fondo para la flor */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 bg-primary-500/10 rounded-full blur-3xl" />
-            <div className="absolute w-48 h-48 md:w-64 md:h-64 lg:w-72 lg:h-72 bg-white/5 rounded-full blur-3xl" />
-          </div>
-          
-          {/* Canvas de Three.js - Golden Flower 3D */}
-          <div className="relative w-[350px] h-[350px] md:w-[450px] md:h-[450px] lg:w-[550px] lg:h-[550px]">
-            <GoldenFlower3D scrollContainerRef={sectionRef} />
-          </div>
-        </div>
-      </div>
-
       {/* ============================================ */}
       {/* ELEMENTOS DECORATIVOS DE FONDO */}
       {/* ============================================ */}
@@ -246,7 +216,7 @@ export function About() {
       {/* ============================================ */}
       {/* CONTENIDO PRINCIPAL - ALTERNANDO IZQ/DER */}
       {/* ============================================ */}
-      <div className="relative z-20">
+      <div className="relative z-10">
         <div className="container-custom">
           <div ref={contentRef} className="py-16 lg:py-32">
             

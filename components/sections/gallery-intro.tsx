@@ -54,6 +54,7 @@ export function GalleryIntro() {
   const textRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
+  const spacerRef = useRef<HTMLDivElement>(null);
   
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,6 +87,9 @@ export function GalleryIntro() {
     if (typeof globalThis.window === 'undefined') return;
 
     const ctx = gsap.context(() => {
+      // Refresh ScrollTrigger para recalcular posiciones
+      ScrollTrigger.refresh();
+      
       // Timeline para sincronizar zoom y reveal
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -94,6 +98,7 @@ export function GalleryIntro() {
           start: 'top top',
           end: '+=3000',
           scrub: 0.2,
+          invalidateOnRefresh: true,
         },
       });
 
@@ -172,11 +177,21 @@ export function GalleryIntro() {
 
   return (
     <>
+      {/* Espaciador con hilos dorados antes de gallery */}
+      <div ref={spacerRef} className="h-[50vh] bg-black relative overflow-hidden z-30">
+        {/* Hilos dorados decorativos */}
+        <svg className="absolute inset-0 w-full h-full opacity-20 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 1440 400">
+          <path d="M0,200 Q360,100 720,200 T1440,200" fill="none" stroke="#d4af37" strokeWidth="1"/>
+          <path d="M0,300 Q480,200 960,300 T1440,300" fill="none" stroke="#d4af37" strokeWidth="0.5"/>
+          <path d="M0,100 Q240,50 480,100 T960,100 T1440,100" fill="none" stroke="#d4af37" strokeWidth="0.5"/>
+        </svg>
+      </div>
+      
       {/* Sección del zoom */}
       <section
         id="galeria"
         ref={sectionRef}
-        className="h-screen relative flex items-center justify-center bg-black overflow-hidden"
+        className="h-screen relative flex items-center justify-center bg-black overflow-hidden z-30"
       >
         {/* Texto que hace zoom completo */}
         <div

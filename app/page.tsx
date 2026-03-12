@@ -15,6 +15,7 @@ import { Testimonials } from '@/components/sections/testimonials';
 import { Contact } from '@/components/sections/contact';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
+import { ContentWrapper } from '@/components/sections/content-wrapper';
 
 export default function HomePage() {
   return (
@@ -22,8 +23,10 @@ export default function HomePage() {
       <Navbar />
       <main>
         <Hero />
-        <About />
-        <Services />
+        <ContentWrapper>
+          <About />
+          <Services />
+        </ContentWrapper>
         <GalleryIntro />
         <Testimonials />
         <Contact />
