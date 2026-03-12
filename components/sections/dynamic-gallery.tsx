@@ -202,75 +202,82 @@ export function DynamicGallery() {
       });
     }, wrapperRef);
 
-    // Cursor-driven perspective tilt - efecto más pronunciado
+    // Cursor-driven perspective tilt - Efecto fluido con gsap.quickTo para mejor rendimiento
     const images = strip.querySelectorAll('.tilt-card') as NodeListOf<HTMLElement>;
+    
+    // Crear quickTo animators para cada imagen - mucho más eficiente
+    const animators = Array.from(images).map((img) => ({
+      img,
+      rotateX: gsap.quickTo(img, 'rotateX', { ease: 'power3', duration: 0.5 }),
+      rotateY: gsap.quickTo(img, 'rotateY', { ease: 'power3', duration: 0.5 }),
+      z: gsap.quickTo(img, 'z', { ease: 'power3', duration: 0.5 }),
+    }));
+
+    const resetAnimators = () => {
+      animators.forEach(({ rotateX, rotateY, z }) => {
+        rotateX(0);
+        rotateY(0);
+        z(0);
+      });
+    };
 
     const handleMouseMove = (e: MouseEvent) => {
-      images.forEach((img) => {
+      animators.forEach(({ img, rotateX, rotateY, z }) => {
         const rect = img.getBoundingClientRect();
         
         // Verificar si la imagen está visible en el viewport
-        if (rect.right < 0 || rect.left > window.innerWidth) return;
+        if (rect.right < 0 || rect.left > window.innerWidth) {
+          rotateX(0);
+          rotateY(0);
+          z(0);
+          return;
+        }
         
         const imgCenterX = rect.left + rect.width / 2;
         const imgCenterY = rect.top + rect.height / 2;
         
-        // Posición relativa del mouse respecto al centro de la imagen
-        const relX = (e.clientX - imgCenterX) / (rect.width / 2);
-        const relY = (e.clientY - imgCenterY) / (rect.height / 2);
+        // Posición normalizada del mouse respecto al viewport (-1 a 1)
+        const normalizedX = (e.clientX - imgCenterX) / (rect.width / 2);
+        const normalizedY = (e.clientY - imgCenterY) / (rect.height / 2);
         
-        // Distancia del mouse al centro
-        const distance = Math.sqrt(relX ** 2 + relY ** 2);
+        // Clampear entre -1 y 1
+        const clampedX = Math.max(-1, Math.min(1, normalizedX));
+        const clampedY = Math.max(-1, Math.min(1, normalizedY));
         
-        // Aplicar efecto si está dentro de rango (2 = 2 veces el tamaño de la imagen)
+        // Distancia del mouse al centro (0 a ~1.41)
+        const distance = Math.sqrt(clampedX ** 2 + clampedY ** 2);
+        
+        // Radio de efecto: si está dentro de 2.5 veces el tamaño de la imagen
         if (distance < 2.5) {
+          // Interpolación suave de intensidad
           const intensity = Math.max(0, 1 - (distance / 2.5));
           
-          // Rotación más pronunciada: hasta ±12 grados
-          const rotateX = -relY * 12 * intensity;
-          const rotateY = relX * 12 * intensity;
+          // Rotaciones muy pronunciadas: ±28 grados
+          const newRotateX = gsap.utils.interpolate(28, -28, 0.5 + (clampedY * 0.5)) * intensity;
+          const newRotateY = gsap.utils.interpolate(-28, 28, 0.5 + (clampedX * 0.5)) * intensity;
           
-          // Elevar ligeramente la imagen cuando está activa
-          const translateZ = 20 * intensity;
+          // Elevación en perspectiva 3D más pronunciada
+          const translateZ = 50 * intensity;
           
-          gsap.to(img, {
-            rotateX,
-            rotateY,
-            z: translateZ,
-            duration: 0.4,
-            ease: 'power2.out',
-          });
+          rotateX(newRotateX);
+          rotateY(newRotateY);
+          z(translateZ);
         } else {
-          gsap.to(img, {
-            rotateX: 0,
-            rotateY: 0,
-            z: 0,
-            duration: 0.6,
-            ease: 'power2.out',
-          });
+          // Resetear si está fuera de rango
+          rotateX(0);
+          rotateY(0);
+          z(0);
         }
       });
     };
 
-    const handleMouseLeave = () => {
-      images.forEach((img) => {
-        gsap.to(img, {
-          rotateX: 0,
-          rotateY: 0,
-          z: 0,
-          duration: 0.6,
-          ease: 'power2.out',
-        });
-      });
-    };
-
     wrapper.addEventListener('mousemove', handleMouseMove);
-    wrapper.addEventListener('mouseleave', handleMouseLeave);
+    wrapper.addEventListener('mouseleave', resetAnimators);
 
     return () => {
       ctx.revert();
       wrapper.removeEventListener('mousemove', handleMouseMove);
-      wrapper.removeEventListener('mouseleave', handleMouseLeave);
+      wrapper.removeEventListener('mouseleave', resetAnimators);
     };
   }, []);
 
