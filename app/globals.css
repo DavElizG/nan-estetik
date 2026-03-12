@@ -138,3 +138,104 @@ canvas {
 .about-content-section {
   scroll-snap-align: start;
 }
+
+/* ============================================ */
+/* OPTIMIZACIONES RESPONSIVE PARA MÓVILES */
+/* ============================================ */
+
+/* Mejorar el spacing en móvil para todas las secciones */
+@media (max-width: 768px) {
+  /* Reducir padding vertical en secciones */
+  section {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Asegurar que el contenido no desborde */
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  
+  /* Optimizar el container para móvil */
+  .container-custom {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Reducir tamaño de botones en móvil */
+  .btn {
+    @apply px-4 py-2 text-sm;
+  }
+  
+  /* Mejorar inputs en móvil */
+  .input {
+    @apply px-3 py-2 text-base;
+    font-size: 16px; /* Previene zoom en iOS */
+  }
+  
+  /* Optimizar cards en móvil */
+  .card {
+    @apply p-4;
+  }
+  
+  /* Reducir altura de secciones con min-h-screen en móvil */
+  .service-content-section,
+  .about-content-section {
+    min-height: 70vh;
+  }
+}
+
+/* Optimizaciones específicas para pantallas pequeñas */
+@media (max-width: 640px) {
+  /* Headings más pequeños */
+  h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+  
+  h2 {
+    font-size: 1.75rem;
+    line-height: 1.25;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+  
+  /* Ajustar espaciado vertical */
+  .space-y-6 > * + * {
+    margin-top: 1rem;
+  }
+  
+  .space-y-8 > * + * {
+    margin-top: 1.25rem;
+  }
+}
+
+/* Evitar que elementos 3D causen problemas de performance en móvil */
+@media (max-width: 768px) {
+  canvas {
+    /* Reducir calidad de renderizado en móvil si es necesario */
+    image-rendering: optimizeSpeed;
+  }
+  
+  /* Optimizar animaciones en móvil */
+  .will-change-transform {
+    will-change: auto;
+  }
+}
+
+/* Touch-friendly: aumentar área de toque en móvil */
+@media (hover: none) and (pointer: coarse) {
+  a, button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .treatment-badge,
+  .decor-element {
+    min-height: 48px;
+  }
+}

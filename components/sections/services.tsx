@@ -139,15 +139,15 @@ export function Services() {
         <div ref={contentRef} className="py-16 lg:py-32">
           
           {/* Título principal de Servicios - IZQUIERDA */}
-          <div className="service-content-section min-h-[70vh] flex items-center pb-24">
-            <div className="w-full lg:w-[45%] lg:pr-8">
-              <div className="mb-6">
+          <div className="service-content-section min-h-[60vh] md:min-h-[70vh] flex items-center pb-12 md:pb-20 lg:pb-24">
+            <div className="w-full px-4 sm:px-6 lg:w-[45%] lg:pr-8">
+              <div className="mb-4 md:mb-6">
                 <span className="text-xs uppercase tracking-[0.3em] text-primary-400 font-semibold">
                   Nuestros Servicios
                 </span>
               </div>
               
-              <h2 className="section-title text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-heading font-bold text-white leading-tight mb-8">
+              <h2 className="section-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-heading font-bold text-white leading-tight mb-6 md:mb-8">
                 Tratamientos{' '}
                 <span className="block text-primary-500">Especializados</span>
               </h2>
@@ -169,9 +169,9 @@ export function Services() {
               <div 
                 key={service.id}
                 data-service={service.title}
-                className={`service-content-section min-h-screen flex items-center ${isRight ? 'justify-end' : ''} pb-32`}
+                className={`service-content-section min-h-[70vh] md:min-h-[80vh] lg:min-h-screen flex items-center ${isRight ? 'justify-end' : ''} pb-12 md:pb-20 lg:pb-32`}
               >
-                <div className={`w-full lg:w-[45%] ${isRight ? 'lg:pl-8 lg:text-right' : 'lg:pr-8'}`}>
+                <div className={`w-full px-4 sm:px-6 lg:w-[45%] ${isRight ? 'lg:pl-8 lg:text-right' : 'lg:pr-8'}`}>
                   <div className="mb-6">
                     <span className="text-xs uppercase tracking-[0.3em] text-primary-400/70 font-semibold">
                       Servicio {chapterNumber}
@@ -182,13 +182,13 @@ export function Services() {
                     {service.title}
                   </h3>
                   
-                  <p className={`animate-paragraph text-gray-300 leading-relaxed mb-8 max-w-xl ${isRight ? 'lg:ml-auto' : ''}`}>
+                  <p className={`animate-paragraph text-sm sm:text-base text-gray-300 leading-relaxed mb-4 md:mb-6 lg:mb-8 max-w-xl ${isRight ? 'lg:ml-auto' : ''}`}>
                     {service.description}
                   </p>
 
                   {/* Badge premium */}
                   {service.isPremium && (
-                    <div className={`mb-6 ${isRight ? 'lg:flex lg:justify-end' : ''}`}>
+                    <div className={`mb-4 md:mb-6 ${isRight ? 'lg:flex lg:justify-end' : ''}`}>
                       <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500/20 border border-primary-500/40 text-primary-400 rounded-full text-sm font-semibold">
                         <Star size={16} />
                         Tratamiento Premium
@@ -197,18 +197,18 @@ export function Services() {
                   )}
 
                   {/* Grid de tratamientos - estilo idéntico a About values */}
-                  <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${isRight ? 'max-w-lg lg:ml-auto' : 'max-w-lg'}`}>
+                  <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 ${isRight ? 'max-w-lg lg:ml-auto' : 'max-w-lg'}`}>
                     {service.treatments.map((treatment) => {
                       const TreatmentIcon = iconMap[treatment.icon] || Sparkles;
                       return (
                         <div 
                           key={treatment.id}
-                          className="decor-element group p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-primary-500/20 hover:border-primary-500/40 transition-all duration-500 hover:bg-white/10 cursor-pointer"
+                          className="decor-element group p-4 md:p-5 bg-white/5 backdrop-blur-sm rounded-xl md:rounded-2xl border border-primary-500/20 hover:border-primary-500/40 transition-all duration-500 hover:bg-white/10 cursor-pointer"
                         >
-                          <div className="w-10 h-10 bg-primary-500/20 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
-                            <TreatmentIcon className="text-primary-400" size={20} />
+                          <div className="w-8 h-8 md:w-10 md:h-10 bg-primary-500/20 rounded-lg md:rounded-xl flex items-center justify-center mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-300">
+                            <TreatmentIcon className="text-primary-400" size={18} />
                           </div>
-                          <h4 className="text-base font-bold text-white mb-1">{treatment.name}</h4>
+                          <h4 className="text-sm md:text-base font-bold text-white mb-1">{treatment.name}</h4>
                           <p className="text-xs text-gray-400">{treatment.duration} • {treatment.price}</p>
                         </div>
                       );

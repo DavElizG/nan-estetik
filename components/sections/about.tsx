@@ -229,14 +229,14 @@ export function About() {
                   </span>
                 </div>
                 
-                <h2 className="section-title text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-heading font-bold text-white leading-tight mb-8">
+                <h2 className="section-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-heading font-bold text-white leading-tight mb-6 md:mb-8">
                   Donde la{' '}
                   <span className="block text-primary-500">Belleza</span>
                   Florece
                 </h2>
                 
-                <div className="space-y-6 max-w-xl">
-                  <p className="animate-paragraph text-lg md:text-xl text-gray-300 leading-relaxed">
+                <div className="space-y-4 md:space-y-6 max-w-xl">
+                  <p className="animate-paragraph text-base md:text-lg text-gray-300 leading-relaxed">
                     En{' '}
                     <span className="text-primary-400 font-semibold">Nan Estetik</span>, 
                     creemos que cada persona posee una belleza única que merece ser 
@@ -260,20 +260,20 @@ export function About() {
             </div>
 
             {/* SECCIÓN 2: Nuestra Historia - DERECHA */}
-            <div className="about-content-section min-h-screen flex items-center justify-end pb-32">
-              <div className="w-full lg:w-[45%] lg:pl-8 lg:text-right">
-                <div className="mb-6">
+            <div className="about-content-section min-h-[70vh] md:min-h-[80vh] lg:min-h-screen flex items-center justify-end pb-12 md:pb-20 lg:pb-32">
+              <div className="w-full px-4 sm:px-6 lg:w-[45%] lg:pl-8 lg:text-right">
+                <div className="mb-4 md:mb-6">
                   <span className="text-xs uppercase tracking-[0.3em] text-primary-400/70 font-semibold">
                     Capítulo I
                   </span>
                 </div>
                 
-                <h3 className="section-title text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-white mb-8">
+                <h3 className="section-title text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-white mb-6 md:mb-8">
                   Nuestra Historia
                 </h3>
                 
-                <div className="space-y-6 max-w-xl lg:ml-auto">
-                  <p className="animate-paragraph text-gray-300 leading-relaxed">
+                <div className="space-y-4 md:space-y-6 max-w-xl lg:ml-auto">
+                  <p className="animate-paragraph text-sm sm:text-base text-gray-300 leading-relaxed">
                     <span className="text-primary-400 font-semibold">Nan Estetik</span> nació 
                     de un sueño compartido: crear un espacio donde la ciencia de la estética 
                     se fusionara con el arte del cuidado personal. Fundado hace más de una 
@@ -327,18 +327,18 @@ export function About() {
                 </p>
 
                 {/* Grid de valores */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 max-w-lg">
                   {values.map((val) => {
                     const Icon = val.icon;
                     return (
                       <div 
                         key={val.title}
-                        className="decor-element group p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-primary-500/20 hover:border-primary-500/40 transition-all duration-500 hover:bg-white/10"
+                        className="decor-element group p-4 md:p-5 bg-white/5 backdrop-blur-sm rounded-xl md:rounded-2xl border border-primary-500/20 hover:border-primary-500/40 transition-all duration-500 hover:bg-white/10"
                       >
-                        <div className="w-10 h-10 bg-primary-500/20 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
-                          <Icon className="text-primary-400" size={20} />
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-primary-500/20 rounded-lg md:rounded-xl flex items-center justify-center mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-300">
+                          <Icon className="text-primary-400" size={18} />
                         </div>
-                        <h4 className="text-base font-bold text-white mb-1">{val.title}</h4>
+                        <h4 className="text-sm md:text-base font-bold text-white mb-1">{val.title}</h4>
                         <p className="text-xs text-gray-400">{val.description}</p>
                       </div>
                     );
@@ -456,18 +456,18 @@ export function About() {
                 </p>
 
                 {/* Grid de estadísticas */}
-                <div className="grid grid-cols-2 gap-4 max-w-md lg:ml-auto">
+                <div className="grid grid-cols-2 gap-3 md:gap-4 max-w-md lg:ml-auto">
                   {stats.map((stat) => {
                     const Icon = stat.icon;
                     return (
                       <div 
                         key={stat.label}
-                        className="decor-element text-center p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-primary-500/20"
+                        className="decor-element text-center p-4 md:p-5 bg-white/5 backdrop-blur-sm rounded-xl md:rounded-2xl border border-primary-500/20"
                       >
-                        <div className="w-10 h-10 bg-primary-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <Icon className="text-primary-400" size={20} />
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-primary-500/20 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-3">
+                          <Icon className="text-primary-400" size={18} />
                         </div>
-                        <div className="text-2xl md:text-3xl font-bold text-primary-400 mb-1">
+                        <div className="text-xl md:text-2xl lg:text-3xl font-bold text-primary-400 mb-1">
                           <AnimatedCounter 
                             value={stat.value} 
                             suffix={stat.suffix} 

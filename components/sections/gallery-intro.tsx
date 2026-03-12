@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CldImage } from 'next-cloudinary';
@@ -152,7 +152,31 @@ export function GalleryIntro() {
       const galleryCards = galleryRef.current?.querySelectorAll('.gallery-card');
       
       if (galleryCards) {
+        // Staggered reveal: las cards entran con fade + scale + movimiento Y
         galleryCards.forEach((card, index) => {
+          gsap.fromTo(card, 
+            { 
+              opacity: 0, 
+              y: 80, 
+              scale: 0.92,
+            },
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              duration: 0.8,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: card,
+                start: 'top 90%',
+                end: 'top 60%',
+                scrub: false,
+                toggleActions: 'play none none reverse',
+              },
+              delay: (index % 3) * 0.1, // stagger por columna
+            }
+          );
+
           const innerContainer = card.querySelector('.inner-container') as HTMLElement;
           const image = card.querySelector('.gallery-image') as HTMLElement;
           
@@ -161,9 +185,10 @@ export function GalleryIntro() {
             const scrubValues = [0.5, 0.3, 0.7, 0.4, 0.6, 0.35];
             const scrubValue = scrubValues[index % scrubValues.length];
             
-            // Animación de la imagen (se mueve hacia arriba)
+            // Animación de la imagen (se mueve hacia arriba) - parallax más pronunciado
             const imageAnim = gsap.to(image, {
-              yPercent: -50,
+              yPercent: -30,
+              scale: 1.15,
               ease: 'none',
               paused: true
             });
@@ -173,9 +198,9 @@ export function GalleryIntro() {
               duration: scrubValue
             });
             
-            // Animación del contenedor (se mueve hacia abajo)
+            // Animación del contenedor
             gsap.to(innerContainer, {
-              yPercent: 50,
+              yPercent: 30,
               ease: 'none',
               scrollTrigger: {
                 trigger: card,
@@ -187,6 +212,43 @@ export function GalleryIntro() {
             });
           }
         });
+      }
+
+      // 5. Animación del título de la galería
+      const galleryTitle = document.querySelector('.gallery-title-block');
+      if (galleryTitle) {
+        gsap.fromTo(galleryTitle,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: galleryTitle,
+              start: 'top 85%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      }
+
+      // 6. Animación de la línea decorativa del título
+      const galleryLine = document.querySelector('.gallery-title-line');
+      if (galleryLine) {
+        gsap.fromTo(galleryLine,
+          { scaleX: 0 },
+          {
+            scaleX: 1,
+            duration: 0.8,
+            ease: 'power2.inOut',
+            scrollTrigger: {
+              trigger: galleryLine,
+              start: 'top 85%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
       }
     }, sectionRef);
 
@@ -246,10 +308,10 @@ export function GalleryIntro() {
           <span className="text-[8px] uppercase tracking-[0.4em] text-secondary-500 mb-4">
             Descubre
           </span>
-          <span className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-white tracking-wide">
+          <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-white tracking-wide">
             Tu Belleza,
           </span>
-          <span className="text-4xl md:text-5xl lg:text-6xl font-heading font-black text-primary-500 mt-2">
+          <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-black text-primary-500 mt-2">
             Nuestro Arte
           </span>
           <span className="text-[8px] uppercase tracking-[0.4em] text-secondary-500 mt-4">
@@ -266,15 +328,15 @@ export function GalleryIntro() {
       </section>
 
       {/* Sección de galería separada - fluye normalmente */}
-      <section className="bg-white py-24 min-h-screen overflow-hidden">
-        <div className="container-custom w-full">
+      <section className="bg-white py-12 md:py-20 lg:py-24 min-h-screen overflow-hidden">
+        <div className="container-custom w-full px-4">
           {/* Título */}
-          <div className="text-center mb-16">
-            <h3 className="text-3xl md:text-5xl font-heading font-bold text-secondary-900 mb-4">
+          <div className="gallery-title-block text-center mb-10 md:mb-16">
+            <h3 className="text-2xl sm:text-3xl md:text-5xl font-heading font-bold text-secondary-900 mb-3 md:mb-4">
               Nuestros Resultados
             </h3>
-            <div className="w-24 h-1 bg-primary-500 mx-auto mb-4" />
-            <p className="text-base md:text-lg text-secondary-600 max-w-2xl mx-auto">
+            <div className="gallery-title-line w-20 md:w-24 h-1 bg-primary-500 mx-auto mb-3 md:mb-4 origin-center" />
+            <p className="text-sm md:text-base lg:text-lg text-secondary-600 max-w-2xl mx-auto px-4">
               Descubre las transformaciones de nuestros pacientes.
             </p>
           </div>
@@ -282,7 +344,7 @@ export function GalleryIntro() {
           {/* Grid de galería */}
           <div
             ref={galleryRef}
-            className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-16"
+            className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-12 md:mb-16"
           >
               {displayItems.map((item) => (
                 <div
@@ -290,6 +352,7 @@ export function GalleryIntro() {
                   className={`
                     gallery-card
                     relative overflow-hidden rounded-xl cursor-pointer group
+                    transition-shadow duration-300 hover:shadow-2xl hover:shadow-primary-500/20
                     ${item.aspect === 'tall' ? 'row-span-2' : ''}
                     ${item.aspect === 'wide' ? 'col-span-2' : ''}
                   `}
@@ -311,8 +374,8 @@ export function GalleryIntro() {
                     )}
                   </div>
                   
-                  <div className="absolute inset-0 bg-secondary-900/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
-                    <span className="text-white font-semibold text-lg">
+                  <div className="absolute inset-0 bg-gradient-to-t from-secondary-900/80 via-secondary-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pointer-events-none pb-6">
+                    <span className="text-white font-semibold text-lg translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                       {item.alt || 'Ver detalles'}
                     </span>
                   </div>

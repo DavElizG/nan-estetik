@@ -119,20 +119,20 @@ export function Hero() {
       </div>
 
       {/* Contenido con parallax - capa más rápida */}
-      <div className="relative z-10 container-custom text-center text-white">
+      <div className="relative z-10 container-custom text-center text-white px-4">
         <h1
           ref={titleRef}
-          className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold mb-6"
+          className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-heading font-bold mb-4 md:mb-6"
         >
           <span className="text-primary-500">Nan</span> Estetik
         </h1>
         <p
           ref={subtitleRef}
-          className="text-xl md:text-2xl lg:text-3xl mb-8 max-w-3xl mx-auto text-white/90"
+          className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-6 md:mb-8 max-w-3xl mx-auto text-white/90"
         >
           Realza tu belleza natural con nuestros tratamientos especializados
         </p>
-        <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div ref={ctaRef} className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
           <a href="#servicios" className="btn bg-primary-500 text-secondary-900 hover:bg-primary-400 font-semibold">
             Ver Servicios
           </a>

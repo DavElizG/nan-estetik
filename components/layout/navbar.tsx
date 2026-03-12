@@ -79,8 +79,8 @@ export function Navbar() {
       className={clsx(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
         isScrolled
-          ? 'bg-black/70 backdrop-blur-xl py-4 border-b border-white/[0.03]'
-          : 'bg-transparent py-6'
+          ? 'bg-black/70 backdrop-blur-xl py-3 md:py-4 border-b border-white/[0.03]'
+          : 'bg-transparent py-4 md:py-6'
       )}
     >
       <div className="container-custom">
@@ -89,7 +89,7 @@ export function Navbar() {
           <Link
             href="/"
             className={clsx(
-              'text-2xl font-heading font-bold transition-colors',
+              'text-xl md:text-2xl font-heading font-bold transition-colors',
               isDarkMode 
                 ? 'text-white' 
                 : isScrolled ? 'text-secondary-900' : 'text-secondary-900'

@@ -127,20 +127,20 @@ export function Contact() {
       />
       
       <div className="container-custom relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-secondary-900 mb-6">
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-secondary-900 mb-4 md:mb-6">
             Agenda tu Cita
           </h2>
-          <div className="w-24 h-1 bg-primary-500 mx-auto mb-8" />
-          <p className="text-lg md:text-xl text-secondary-600 max-w-3xl mx-auto">
+          <div className="w-20 md:w-24 h-1 bg-primary-500 mx-auto mb-6 md:mb-8" />
+          <p className="text-base md:text-lg lg:text-xl text-secondary-600 max-w-3xl mx-auto px-4">
             Estamos aquí para ayudarte. Contáctanos y agenda tu consulta.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
           {/* Formulario */}
           <div>
-            <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
               <div>
                 <label htmlFor="name" className="label">
                   Nombre completo
