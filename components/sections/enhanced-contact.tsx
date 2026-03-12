@@ -1,8 +1,6 @@
-/**
- * Enhanced Contact - Diseño más visual con elementos flotantes
- * 
- * Formulario con efectos premium, cards de info interactivas
- * Más elementos decorativos para llenar el espacio
+﻿/**
+ * Enhanced Contact — Estilo TutuSchool adaptado
+ * Título + info a la izquierda | Gran card redondeada oscura con form a la derecha
  */
 
 'use client';
@@ -10,7 +8,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Phone, Mail, MapPin, Clock, Send, MessageCircle, Instagram } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Send, MessageCircle, AtSign } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,49 +19,28 @@ export function EnhancedContact() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Animación de entrada de cards de contacto
-      const contactCards = sectionRef.current?.querySelectorAll('.contact-card');
-      contactCards?.forEach((card, index) => {
-        gsap.from(card, {
-          opacity: 0,
-          y: 40,
-          rotation: gsap.utils.random(-5, 5),
-          duration: 0.6,
-          ease: 'back.out(1.5)',
-          scrollTrigger: {
-            trigger: card,
-            start: 'top 85%',
-            once: true,
-          },
-          delay: index * 0.1,
-        });
+      gsap.from('.contact-left > *', {
+        opacity: 0,
+        y: 40,
+        duration: 0.8,
+        stagger: 0.12,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: sectionRef.current, start: 'top 75%', once: true },
       });
-
-      // Form elements
-      const formElements = formRef.current?.querySelectorAll('input, textarea, button');
-      formElements?.forEach((el, index) => {
-        gsap.from(el, {
-          opacity: 0,
-          x: -30,
-          duration: 0.5,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: formRef.current,
-            start: 'top 80%',
-            once: true,
-          },
-          delay: index * 0.08,
-        });
+      gsap.from('.contact-card-right', {
+        opacity: 0,
+        x: 60,
+        duration: 1,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: sectionRef.current, start: 'top 70%', once: true },
       });
     }, sectionRef);
-
     return () => ctx.revert();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       alert('¡Mensaje enviado! Nos pondremos en contacto contigo pronto.');
@@ -77,246 +54,179 @@ export function EnhancedContact() {
   };
 
   const contactMethods = [
-    {
-      icon: Phone,
-      label: 'Llámanos',
-      value: '+52 555 123 4567',
-      link: 'tel:+525551234567',
-      color: 'primary',
-    },
-    {
-      icon: MessageCircle,
-      label: 'WhatsApp',
-      value: 'Chatea con nosotros',
-      link: 'https://wa.me/525551234567',
-      color: 'green',
-    },
-    {
-      icon: Mail,
-      label: 'Email',
-      value: 'info@nanestetik.com',
-      link: 'mailto:info@nanestetik.com',
-      color: 'primary',
-    },
-    {
-      icon: Instagram,
-      label: 'Instagram',
-      value: '@nanestetik',
-      link: 'https://instagram.com/nanestetik',
-      color: 'pink',
-    },
-  ];
-
-  const info = [
-    { icon: MapPin, label: 'Ubicación', value: 'Calle Principal #123, CDMX' },
-    { icon: Clock, label: 'Horario', value: 'Lun - Sáb: 9:00 - 19:00' },
+    { icon: Phone,         label: 'Llámanos',   value: '+52 555 123 4567',    link: 'tel:+525551234567' },
+    { icon: MessageCircle, label: 'WhatsApp',   value: 'Chatea con nosotros', link: 'https://wa.me/525551234567' },
+    { icon: Mail,          label: 'Email',      value: 'info@nanestetik.com', link: 'mailto:info@nanestetik.com' },
+    { icon: AtSign,        label: 'Instagram',  value: '@nanestetik',         link: 'https://instagram.com/nanestetik' },
   ];
 
   return (
     <section
       ref={sectionRef}
       id="contacto"
-      className="relative bg-white py-16 md:py-24 lg:py-32 overflow-hidden"
+      className="relative bg-cream-50 py-20 md:py-32 overflow-hidden"
     >
-      {/* Background decorativo complejo */}
-      <div className="absolute inset-0">
-        <div className="absolute top-10 right-10 w-64 h-64 bg-primary-200/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-10 w-80 h-80 bg-primary-300/15 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/4 w-1 h-40 bg-gradient-to-b from-transparent via-primary-400/20 to-transparent" />
-        <div className="absolute bottom-1/ right-1/3 w-48 h-48 border border-primary-300/20 rounded-full" />
-      </div>
+      {/* Decorativo */}
+      <div className="absolute top-1/4 right-0 w-96 h-96 bg-primary-200/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-1/4 w-64 h-64 bg-primary-300/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="container-custom px-4 relative z-10">
-        {/* Header */}
-        <div className="max-w-3xl mb-12 md:mb-20">
-          <span className="text-xs uppercase tracking-[0.3em] text-primary-600 font-semibold mb-3 block">
-            Contacto
-          </span>
-          <h2 className="text-4xl md:text-5xl lg:text-7xl font-heading font-bold text-secondary-900 mb-6">
-            Comienza Tu
-            <br />
-            <span className="text-primary-500">Transformación</span>
-          </h2>
-          <p className="text-lg md:text-xl text-secondary-600">
-            Agenda tu consulta personalizada y descubre cómo podemos ayudarte a alcanzar tus objetivos de belleza.
-          </p>
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
-        {/* Grid de métodos de contacto */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12 md:mb-20">
-          {contactMethods.map((method, index) => (
-            <a
-              key={index}
-              href={method.link}
-              target={method.link.startsWith('http') ? '_blank' : undefined}
-              rel={method.link.startsWith('http') ? 'noopener noreferrer' : undefined}
-              className="contact-card group relative bg-gradient-to-br from-cream-50 to-white p-6 rounded-2xl border border-primary-500/10 hover:border-primary-500/30 hover:-translate-y-1 transition-all duration-300"
-            >
-              <div className={`w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300`}>
-                <method.icon className="w-6 h-6 text-primary-600" />
-              </div>
-              <p className="text-sm font-semibold text-secondary-500 mb-1">
-                {method.label}
+          {/* IZQUIERDA: título + métodos de contacto */}
+          <div className="contact-left flex flex-col gap-8">
+            <div>
+              <span className="text-xs uppercase tracking-[0.35em] text-primary-600 font-semibold block mb-4">
+                Contacto
+              </span>
+              <h2 className="text-5xl md:text-6xl xl:text-7xl font-heading font-bold text-secondary-900 leading-[0.92] mb-6">
+                Agenda<br />
+                <span className="text-primary-500">Tu Cita</span>
+              </h2>
+              <p className="text-lg text-secondary-600 max-w-md leading-relaxed">
+                Agenda tu consulta personalizada y descubre cómo podemos ayudarte a alcanzar tus objetivos de belleza.
               </p>
-              <p className="text-base font-medium text-secondary-900 group-hover:text-primary-600 transition-colors">
-                {method.value}
-              </p>
-              
-              {/* Decorative corner */}
-              <div className="absolute top-3 right-3 w-8 h-8 border-t-2 border-r-2 border-primary-500/20 rounded-tr-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-            </a>
-          ))}
-        </div>
+            </div>
 
-        {/* Grid principal: formulario + info */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 md:gap-12">
-          {/* Formulario (3 columnas) */}
-          <div className="lg:col-span-3">
-            <div className="bg-secondary-900 rounded-3xl p-6 md:p-10 relative overflow-hidden">
-              {/* Background pattern */}
-              <div className="absolute inset-0 opacity-5">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(212,175,55,0.3),_transparent_50%)]" />
+            {/* Métodos de contacto */}
+            <ul className="space-y-5">
+              {contactMethods.map((m) => (
+                <li key={m.label}>
+                  <a
+                    href={m.link}
+                    target={m.link.startsWith('http') ? '_blank' : undefined}
+                    rel={m.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    className="group flex items-center gap-4"
+                  >
+                    <div className="w-11 h-11 rounded-full bg-white border border-primary-500/20 flex items-center justify-center group-hover:border-primary-500 group-hover:bg-primary-500/5 transition-all duration-300 flex-shrink-0">
+                      <m.icon className="w-5 h-5 text-primary-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-secondary-500 font-medium uppercase tracking-wider">{m.label}</p>
+                      <p className="text-base font-semibold text-secondary-900 group-hover:text-primary-600 transition-colors">{m.value}</p>
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            {/* Ubicación y horario */}
+            <div className="pt-6 border-t border-secondary-200/80 space-y-3">
+              <div className="flex items-center gap-3 text-secondary-600">
+                <MapPin className="w-4 h-4 text-primary-500 flex-shrink-0" />
+                <span className="text-sm">Calle Principal #123, CDMX</span>
               </div>
+              <div className="flex items-center gap-3 text-secondary-600">
+                <Clock className="w-4 h-4 text-primary-500 flex-shrink-0" />
+                <span className="text-sm">Lunes a Sábado: 9:00 - 19:00</span>
+              </div>
+            </div>
+          </div>
 
-              <form ref={formRef} onSubmit={handleSubmit} className="relative z-10 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* DERECHA: card redondeada oscura con form */}
+          <div className="contact-card-right bg-secondary-900 rounded-[2.5rem] p-8 md:p-12">
+            <div>
+              <h3 className="text-2xl md:text-3xl font-heading font-bold text-white mb-1">
+                Escríbenos
+              </h3>
+              <p className="text-white/50 text-sm mb-8">
+                Te respondemos en menos de 24 horas
+              </p>
+
+              <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-semibold text-white mb-2">
-                      Nombre completo
+                    <label htmlFor="name" className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">
+                      Nombre
                     </label>
                     <input
-                      type="text"
-                      id="name"
-                      required
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all"
+                      type="text" id="name" required
                       placeholder="María González"
+                      className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/30 focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/20 focus:outline-none transition-all text-sm"
                     />
                   </div>
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-semibold text-white mb-2">
+                    <label htmlFor="phone" className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">
                       Teléfono
                     </label>
                     <input
-                      type="tel"
-                      id="phone"
-                      required
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all"
+                      type="tel" id="phone" required
                       placeholder="+52 555 123 4567"
+                      className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/30 focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/20 focus:outline-none transition-all text-sm"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-white mb-2">
+                  <label htmlFor="email" className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">
                     Email
                   </label>
                   <input
-                    type="email"
-                    id="email"
-                    required
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all"
+                    type="email" id="email" required
                     placeholder="maria@ejemplo.com"
+                    className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/30 focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/20 focus:outline-none transition-all text-sm"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="service" className="block text-sm font-semibold text-white mb-2">
+                  <label htmlFor="service" className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">
                     Servicio de interés
                   </label>
                   <select
                     id="service"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all"
+                    className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white/80 focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/20 focus:outline-none transition-all text-sm"
                   >
-                    <option value="">Selecciona un servicio</option>
-                    <option value="facial">Tratamiento Facial</option>
-                    <option value="labios">Relleno Labial</option>
-                    <option value="armonizacion">Armonización Facial</option>
-                    <option value="otro">Otro</option>
+                    <option value="" className="bg-secondary-900">Selecciona un servicio</option>
+                    <option value="facial" className="bg-secondary-900">Tratamiento Facial</option>
+                    <option value="labios" className="bg-secondary-900">Relleno Labial</option>
+                    <option value="armonizacion" className="bg-secondary-900">Armonización Facial</option>
+                    <option value="botox" className="bg-secondary-900">Botox</option>
+                    <option value="otro" className="bg-secondary-900">Otro</option>
                   </select>
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-semibold text-white mb-2">
+                  <label htmlFor="message" className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">
                     Mensaje
                   </label>
                   <textarea
-                    id="message"
-                    rows={4}
-                    required
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all resize-none"
+                    id="message" rows={4} required
                     placeholder="Cuéntanos sobre tus objetivos..."
+                    className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/30 focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/20 focus:outline-none transition-all resize-none text-sm"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="group w-full px-8 py-4 bg-primary-500 text-secondary-900 font-bold rounded-xl hover:bg-primary-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-3"
+                  className="group w-full px-8 py-4 bg-primary-500 text-secondary-900 font-bold rounded-2xl hover:bg-primary-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-3 text-sm"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-secondary-900/30 border-t-secondary-900 rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-secondary-900/30 border-t-secondary-900 rounded-full animate-spin" />
                       Enviando...
                     </>
                   ) : (
                     <>
                       Enviar Mensaje
-                      <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                      <Send className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                     </>
                   )}
                 </button>
               </form>
+
+              {/* Links rápidos */}
+              <div className="flex flex-wrap gap-6 mt-8 pt-6 border-t border-white/10">
+                <a href="https://wa.me/525551234567" target="_blank" rel="noopener noreferrer"
+                  className="text-white/40 hover:text-primary-400 text-xs uppercase tracking-widest transition-colors">WhatsApp</a>
+                <a href="https://instagram.com/nanestetik" target="_blank" rel="noopener noreferrer"
+                  className="text-white/40 hover:text-primary-400 text-xs uppercase tracking-widest transition-colors">Instagram</a>
+                <a href="mailto:info@nanestetik.com"
+                  className="text-white/40 hover:text-primary-400 text-xs uppercase tracking-widest transition-colors">Email</a>
+              </div>
             </div>
           </div>
 
-          {/* Info adicional (2 columnas) */}
-          <div className="lg:col-span-2 space-y-6">
-            {info.map((item, index) => (
-              <div
-                key={index}
-                className="contact-card bg-gradient-to-br from-primary-50 to-cream-50 p-8 rounded-2xl border border-primary-500/20"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-primary-500/10 flex items-center justify-center mb-4">
-                  <item.icon className="w-7 h-7 text-primary-600" />
-                </div>
-                <h3 className="text-lg font-heading font-bold text-secondary-900 mb-2">
-                  {item.label}
-                </h3>
-                <p className="text-base text-secondary-700">
-                  {item.value}
-                </p>
-              </div>
-            ))}
-
-            {/* CTA urgencia */}
-            <div className="contact-card bg-secondary-900 p-8 rounded-2xl relative overflow-hidden">
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,_rgba(212,175,55,0.5),_transparent_60%)]" />
-              </div>
-              <div className="relative z-10">
-                <p className="text-sm font-semibold text-primary-400 mb-3">
-                  ⚡ Promoción limitada
-                </p>
-                <h3 className="text-xl font-heading font-bold text-white mb-3">
-                  Primera consulta
-                  <br />
-                  <span className="text-primary-500">20% descuento</span>
-                </h3>
-                <p className="text-sm text-white/70 mb-6">
-                  Válido para nuevos pacientes hasta fin de mes
-                </p>
-                <a
-                  href="https://wa.me/525551234567"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary-500 text-secondary-900 font-bold rounded-lg hover:bg-primary-400 transition-colors"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  Agendar ahora
-                </a>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>

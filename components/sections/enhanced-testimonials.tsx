@@ -26,47 +26,50 @@ interface Testimonial {
 }
 
 const testimonials: Testimonial[] = [
+  // Fila 1 — arriba
   {
     name: 'María G.',
     treatment: 'Relleno Labial',
     rating: 5,
     text: 'Resultados increíbles y muy naturales. Me sentí en buenas manos.',
-    x: '2%', y: '5%', rotation: -3,
+    x: '8%', y: '12%', rotation: -3,
   },
   {
     name: 'Carmen R.',
     treatment: 'Limpieza Facial',
     rating: 5,
     text: 'Mi piel nunca se había visto tan radiante. Excelente servicio.',
-    x: '70%', y: '0%', rotation: 2,
+    x: '65%', y: '5%', rotation: 2,
   },
+  // Fila 2 — medio
   {
     name: 'Ana M.',
     treatment: 'Armonización',
     rating: 5,
     text: 'Cambio sutil pero impactante. Me siento más segura y bella.',
-    x: '0%', y: '60%', rotation: 4,
+    x: '3%', y: '48%', rotation: 4,
   },
   {
     name: 'Laura S.',
     treatment: 'Ojeras',
     rating: 5,
     text: 'Después de años luchando con ojeras, encontré la solución perfecta.',
-    x: '65%', y: '55%', rotation: -2,
+    x: '76%', y: '35%', rotation: -2,
   },
+  // Fila 3 — abajo
   {
     name: 'Sofía P.',
     treatment: 'Botox',
     rating: 5,
     text: 'Procedimiento rápido y sin dolor. Los resultados son espectaculares.',
-    x: '35%', y: '80%', rotation: 3,
+    x: '32%', y: '76%', rotation: 3,
   },
   {
     name: 'Elena V.',
     treatment: 'Ácido Hialurónico',
     rating: 5,
     text: 'La doctora es una artista. Resultado natural y rejuvenecido.',
-    x: '78%', y: '78%', rotation: -4,
+    x: '70%', y: '70%', rotation: -4,
   },
 ];
 
@@ -130,12 +133,55 @@ export function EnhancedTestimonials() {
     return () => ctx.revert();
   }, []);
 
+  // Pointer-driven tilt — posición relativa a la SECCIÓN completa (igual que el ejemplo del logo)
+  useEffect(() => {
+    const section = sectionRef.current;
+    const container = containerRef.current;
+    if (!section || !container) return;
+
+    gsap.set(container, { perspective: 650 });
+
+    const cards = Array.from(container.querySelectorAll<HTMLElement>('.floating-card'));
+
+    // quickTo por card, duración corta para respuesta ágil
+    const animators = cards.map((card) => ({
+      rotX: gsap.quickTo(card, 'rotationX', { ease: 'power3', duration: 0.6 }),
+      rotY: gsap.quickTo(card, 'rotationY', { ease: 'power3', duration: 0.6 }),
+    }));
+
+    const onPointerMove = (e: PointerEvent) => {
+      const rect = section.getBoundingClientRect();
+
+      // Posición normalizada del cursor dentro de la sección (0 → 1)
+      const px = (e.clientX - rect.left) / rect.width;
+      const py = (e.clientY - rect.top) / rect.height;
+
+      animators.forEach(({ rotX, rotY }) => {
+        // Igual que el ejemplo: interpolate sobre el ancho/alto de la sección
+        rotX(gsap.utils.interpolate(15, -15, py));
+        rotY(gsap.utils.interpolate(-15, 15, px));
+      });
+    };
+
+    const onPointerLeave = () => {
+      animators.forEach(({ rotX, rotY }) => { rotX(0); rotY(0); });
+    };
+
+    section.addEventListener('pointermove', onPointerMove);
+    section.addEventListener('pointerleave', onPointerLeave);
+
+    return () => {
+      section.removeEventListener('pointermove', onPointerMove);
+      section.removeEventListener('pointerleave', onPointerLeave);
+    };
+  }, []);
+
   return (
     <section
       ref={sectionRef}
       id="testimonios"
-      className="relative bg-secondary-900 overflow-hidden"
-      style={{ minHeight: '100vh' }}
+      className="relative bg-secondary-900 overflow-visible"
+      style={{ minHeight: '140vh' }}
     >
       {/* Background sutil */}
       <div className="absolute inset-0">
@@ -147,7 +193,7 @@ export function EnhancedTestimonials() {
       <div
         ref={containerRef}
         className="relative mx-auto max-w-[1400px] px-4"
-        style={{ minHeight: '100vh' }}
+        style={{ minHeight: '140vh' }}
       >
         {/* Título central gigante */}
         <div className="testimonials-title absolute inset-0 flex items-center justify-center pointer-events-none z-[1]">
@@ -173,6 +219,8 @@ export function EnhancedTestimonials() {
               top: t.y,
               transform: `rotate(${t.rotation}deg)`,
               maxWidth: '280px',
+              transformStyle: 'preserve-3d',
+              willChange: 'transform',
             }}
           >
             <div className="bg-white/[0.06] backdrop-blur-md border border-primary-500/15 rounded-2xl p-4 md:p-5 hover:bg-white/[0.1] hover:border-primary-500/30 transition-all duration-500 group cursor-default">
