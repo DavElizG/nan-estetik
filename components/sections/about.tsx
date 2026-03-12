@@ -227,10 +227,10 @@ export function About() {
       {/* ============================================ */}
       {/* ELEMENTOS DECORATIVOS DE FONDO */}
       {/* ============================================ */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="parallax-bg-element absolute top-[10%] right-[10%] w-96 h-96 bg-primary-500/5 rounded-full blur-3xl" />
-        <div className="parallax-bg-element absolute top-[40%] left-[5%] w-64 h-64 bg-primary-400/5 rounded-full blur-3xl" />
-        <div className="parallax-bg-element absolute top-[70%] right-[20%] w-80 h-80 bg-primary-300/5 rounded-full blur-3xl" />
+      <div className="absolute inset-0 pointer-events-none overflow-hidden max-w-full">
+        <div className="parallax-bg-element absolute top-[10%] right-[10%] w-48 md:w-96 h-48 md:h-96 bg-primary-500/5 rounded-full blur-3xl" />
+        <div className="parallax-bg-element absolute top-[40%] left-[5%] w-32 md:w-64 h-32 md:h-64 bg-primary-400/5 rounded-full blur-3xl" />
+        <div className="parallax-bg-element absolute top-[70%] right-[20%] w-40 md:w-80 h-40 md:h-80 bg-primary-300/5 rounded-full blur-3xl" />
       </div>
 
       {/* ============================================ */}

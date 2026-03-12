@@ -123,7 +123,7 @@ export function Contact() {
       {/* Elemento decorativo con parallax */}
       <div
         ref={decorativeRef}
-        className="absolute bottom-0 left-0 w-96 h-96 bg-primary-300/20 rounded-full blur-3xl pointer-events-none"
+        className="absolute bottom-0 left-0 w-48 md:w-96 h-48 md:h-96 bg-primary-300/20 rounded-full blur-3xl pointer-events-none"
       />
       
       <div className="container-custom relative z-10">

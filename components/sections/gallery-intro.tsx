@@ -2,24 +2,88 @@
  * Gallery Section
  * 
  * Efecto zoom-in que revela la galería completa
+ * Integrado con Cloudinary para imágenes
  */
 
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { CldImage } from 'next-cloudinary';
 
 gsap.registerPlugin(ScrollTrigger);
+
+interface GalleryImage {
+  id: string;
+  publicId: string;
+  url: string;
+  width: number;
+  height: number;
+  alt: string;
+  aspect: 'tall' | 'wide' | 'square';
+  category?: string;
+}
+
+// Imágenes de respaldo cuando no hay conexión a Cloudinary
+const fallbackImages: Omit<GalleryImage, 'url' | 'width' | 'height'>[] = [
+  { id: '1', publicId: '', alt: 'Resultado de tratamiento', aspect: 'tall' },
+  { id: '2', publicId: '', alt: 'Transformación facial', aspect: 'wide' },
+  { id: '3', publicId: '', alt: 'Antes y después', aspect: 'square' },
+  { id: '4', publicId: '', alt: 'Resultado natural', aspect: 'square' },
+  { id: '5', publicId: '', alt: 'Tratamiento premium', aspect: 'tall' },
+  { id: '6', publicId: '', alt: 'Belleza radiante', aspect: 'wide' },
+];
+
+// Componente placeholder para cuando no hay imagen
+function GalleryPlaceholder({ aspect, isLoading }: { aspect: string; isLoading: boolean }) {
+  const aspectClass = 
+    aspect === 'tall' ? 'aspect-[3/4]' : 
+    aspect === 'wide' ? 'aspect-[16/9]' : 
+    'aspect-square';
+  
+  return (
+    <div 
+      className={`gallery-image w-full bg-gradient-to-br from-secondary-200 via-secondary-300 to-primary-200 will-change-transform ${isLoading ? 'animate-pulse' : ''} ${aspectClass}`}
+    />
+  );
+}
 
 export function GalleryIntro() {
   const sectionRef = useRef<HTMLElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
+  
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch images from Cloudinary
+  useEffect(() => {
+    async function fetchImages() {
+      try {
+        const response = await fetch('/api/gallery');
+        const result = await response.json();
+        
+        if (result.success && result.data.length > 0) {
+          setImages(result.data);
+        } else {
+          // Use fallback if no images from API
+          setImages(fallbackImages as GalleryImage[]);
+        }
+      } catch (error) {
+        console.error('Error fetching gallery images:', error);
+        setImages(fallbackImages as GalleryImage[]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchImages();
+  }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof globalThis.window === 'undefined') return;
 
     const ctx = gsap.context(() => {
       // Timeline para sincronizar zoom y reveal
@@ -103,15 +167,8 @@ export function GalleryIntro() {
     return () => ctx.revert();
   }, []);
 
-  // Placeholder images
-  const galleryItems = [
-    { id: 1, aspect: 'tall' },
-    { id: 2, aspect: 'wide' },
-    { id: 3, aspect: 'square' },
-    { id: 4, aspect: 'square' },
-    { id: 5, aspect: 'tall' },
-    { id: 6, aspect: 'wide' },
-  ];
+  // Items to display (use fetched images or show loading placeholders)
+  const displayItems = images.length > 0 ? images : fallbackImages;
 
   return (
     <>
@@ -153,7 +210,7 @@ export function GalleryIntro() {
       </section>
 
       {/* Sección de galería separada - fluye normalmente */}
-      <section className="bg-white py-24 min-h-screen">
+      <section className="bg-white py-24 min-h-screen overflow-hidden">
         <div className="container-custom w-full">
           {/* Título */}
           <div className="text-center mb-16">
@@ -171,7 +228,7 @@ export function GalleryIntro() {
             ref={galleryRef}
             className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-16"
           >
-              {galleryItems.map((item) => (
+              {displayItems.map((item) => (
                 <div
                   key={item.id}
                   className={`
@@ -183,14 +240,24 @@ export function GalleryIntro() {
                 >
                   {/* Inner container para el efecto parallax */}
                   <div className="inner-container w-full h-full overflow-hidden">
-                    <div 
-                      className="gallery-image aspect-square w-full bg-gradient-to-br from-secondary-200 via-secondary-300 to-primary-200 will-change-transform"
-                    />
+                    {item.publicId ? (
+                      <CldImage
+                        src={item.publicId}
+                        alt={item.alt}
+                        width={item.aspect === 'wide' ? 800 : 400}
+                        height={item.aspect === 'tall' ? 800 : 400}
+                        className="gallery-image w-full h-full object-cover will-change-transform"
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <GalleryPlaceholder aspect={item.aspect} isLoading={isLoading} />
+                    )}
                   </div>
                   
                   <div className="absolute inset-0 bg-secondary-900/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
                     <span className="text-white font-semibold text-lg">
-                      Ver detalles
+                      {item.alt || 'Ver detalles'}
                     </span>
                   </div>
                 </div>

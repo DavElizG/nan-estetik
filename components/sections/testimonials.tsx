@@ -138,11 +138,11 @@ export function Testimonials() {
       {/* Elementos decorativos con parallax */}
       <div
         ref={decorativeRef1}
-        className="absolute top-10 left-10 w-72 h-72 bg-accent-rose/20 rounded-full blur-3xl pointer-events-none"
+        className="absolute top-10 left-0 md:left-10 w-40 md:w-72 h-40 md:h-72 bg-accent-rose/20 rounded-full blur-3xl pointer-events-none"
       />
       <div
         ref={decorativeRef2}
-        className="absolute bottom-10 right-10 w-96 h-96 bg-primary-200/20 rounded-full blur-3xl pointer-events-none"
+        className="absolute bottom-10 right-0 md:right-10 w-48 md:w-96 h-48 md:h-96 bg-primary-200/20 rounded-full blur-3xl pointer-events-none"
       />
 
       <div className="container-custom relative z-10">
