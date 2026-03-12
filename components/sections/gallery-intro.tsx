@@ -7,10 +7,30 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CldImage } from 'next-cloudinary';
+
+// Genera un path SVG con ola viajera
+function wavePathD(
+  width: number, baseY: number, amplitude: number,
+  frequency: number, phase: number, segments = 60
+): string {
+  let d = '';
+  for (let i = 0; i <= segments; i++) {
+    const x = (i / segments) * width;
+    const y = baseY + amplitude * Math.sin((i / segments) * Math.PI * 2 * frequency + phase);
+    d += i === 0 ? `M${x.toFixed(1)},${y.toFixed(1)}` : ` L${x.toFixed(1)},${y.toFixed(1)}`;
+  }
+  return d;
+}
+
+const SPACER_THREADS = [
+  { baseY: 100, amp: 12, freq: 3, speed: 0.5, sw: '0.5' },
+  { baseY: 200, amp: 16, freq: 2.5, speed: -0.35, sw: '1' },
+  { baseY: 300, amp: 10, freq: 3.5, speed: 0.45, sw: '0.5' },
+];
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -55,6 +75,7 @@ export function GalleryIntro() {
   const contentRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
+  const spacerSvgRef = useRef<SVGSVGElement>(null);
   
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -172,18 +193,38 @@ export function GalleryIntro() {
     return () => ctx.revert();
   }, []);
 
+  // Animación de olas viajeras en los hilos del espaciador
+  useEffect(() => {
+    if (!spacerSvgRef.current) return;
+    let rafId: number;
+    const paths = spacerSvgRef.current.querySelectorAll('path');
+
+    const animate = (time: number) => {
+      const t = time * 0.001; // a segundos
+      paths.forEach((path, i) => {
+        const cfg = SPACER_THREADS[i];
+        if (!cfg) return;
+        path.setAttribute('d', wavePathD(1440, cfg.baseY, cfg.amp, cfg.freq, t * cfg.speed));
+      });
+      rafId = requestAnimationFrame(animate);
+    };
+
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
+  }, []);
+
   // Items to display (use fetched images or show loading placeholders)
   const displayItems = images.length > 0 ? images : fallbackImages;
 
   return (
     <>
-      {/* Espaciador con hilos dorados antes de gallery */}
+      {/* Espaciador con hilos dorados animados antes de gallery */}
       <div ref={spacerRef} className="h-[50vh] bg-black relative overflow-hidden z-30">
-        {/* Hilos dorados decorativos */}
-        <svg className="absolute inset-0 w-full h-full opacity-20 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 1440 400">
-          <path d="M0,200 Q360,100 720,200 T1440,200" fill="none" stroke="#d4af37" strokeWidth="1"/>
-          <path d="M0,300 Q480,200 960,300 T1440,300" fill="none" stroke="#d4af37" strokeWidth="0.5"/>
-          <path d="M0,100 Q240,50 480,100 T960,100 T1440,100" fill="none" stroke="#d4af37" strokeWidth="0.5"/>
+        {/* Hilos dorados — olas viajeras */}
+        <svg ref={spacerSvgRef} className="absolute inset-0 w-full h-full opacity-20 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 1440 400">
+          {SPACER_THREADS.map((cfg, i) => (
+            <path key={i} fill="none" stroke="#d4af37" strokeWidth={cfg.sw} />
+          ))}
         </svg>
       </div>
       

@@ -72,15 +72,6 @@ export function ContentWrapper({ children }: ContentWrapperProps) {
         </div>
       </div>
 
-      {/* Hilos dorados decorativos de fondo */}
-      <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
-        <svg className="absolute w-full h-full opacity-10" preserveAspectRatio="none" viewBox="0 0 1440 900">
-          <path d="M0,300 Q400,200 800,300 T1440,300" fill="none" stroke="#d4af37" strokeWidth="1"/>
-          <path d="M0,500 Q600,400 1200,500" fill="none" stroke="#d4af37" strokeWidth="0.5"/>
-          <path d="M0,700 Q300,600 600,700 T1200,700 T1440,700" fill="none" stroke="#d4af37" strokeWidth="0.5"/>
-        </svg>
-      </div>
-
       {/* Contenido (About + Services) - encima del modelo 3D */}
       <div className="relative z-10">
         {children}
