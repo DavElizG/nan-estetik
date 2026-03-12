@@ -3,7 +3,8 @@
  * 
  * Sección principal con:
  * - Parallax en múltiples capas
- * - Título y CTA principal
+ * - Perspective tilt (título sigue el cursor)
+ * - Animación de texto letra por letra
  * - Animaciones avanzadas con GSAP
  */
 
@@ -18,6 +19,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
+  const titleContainerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
@@ -25,14 +27,48 @@ export function Hero() {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Animaciones de entrada
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    const hero = heroRef.current;
+    const titleContainer = titleContainerRef.current;
+    const title = titleRef.current;
+    if (!hero || !titleContainer || !title) return;
 
-      tl.from(titleRef.current, {
+    // Split text custom - dividir en spans por palabra y letra
+    const text = title.textContent || '';
+    const words = text.split(' ');
+    title.innerHTML = '';
+
+    words.forEach((word) => {
+      const wordSpan = document.createElement('span');
+      wordSpan.style.display = 'inline-block';
+      wordSpan.style.whiteSpace = 'nowrap';
+      wordSpan.style.marginRight = '0.2em';
+
+      const letters = word.split('');
+      letters.forEach((letter) => {
+        const letterSpan = document.createElement('span');
+        letterSpan.textContent = letter;
+        letterSpan.className = 'letter';
+        letterSpan.style.display = 'inline-block';
+        wordSpan.appendChild(letterSpan);
+      });
+
+      title.appendChild(wordSpan);
+    });
+
+    const ctx = gsap.context(() => {
+      // Set perspective para el efecto 3D
+      gsap.set(hero, { perspective: 800 });
+
+      // Animación de entrada letra por letra
+      const letters = title.querySelectorAll('.letter');
+      const tl = gsap.timeline({ defaults: { ease: 'back.out(1.7)' } });
+
+      tl.from(letters, {
         y: 100,
         opacity: 0,
-        duration: 1,
+        rotationX: -90,
+        stagger: 0.03,
+        duration: 0.8,
         delay: 0.5,
       })
         .from(
@@ -42,7 +78,7 @@ export function Hero() {
             opacity: 0,
             duration: 0.8,
           },
-          '-=0.5'
+          '-=0.4'
         )
         .from(
           ctaRef.current,
@@ -54,46 +90,70 @@ export function Hero() {
           '-=0.4'
         );
 
-      // Parallax en el background al hacer scroll
+      // Parallax en el background
       gsap.to(bgRef.current, {
         yPercent: 30,
         ease: 'none',
         scrollTrigger: {
-          trigger: heroRef.current,
+          trigger: hero,
           start: 'top top',
           end: 'bottom top',
           scrub: true,
         },
       });
 
-      // Parallax en el overlay
       gsap.to(overlayRef.current, {
         opacity: 1,
         ease: 'none',
         scrollTrigger: {
-          trigger: heroRef.current,
+          trigger: hero,
           start: 'top top',
           end: 'bottom top',
           scrub: true,
         },
       });
 
-      // Parallax del contenido (se mueve más rápido que el fondo)
-      // Solo se aplica cuando se hace scroll hacia abajo
+      // Parallax del contenido
       const contentTl = gsap.timeline({
         scrollTrigger: {
-          trigger: heroRef.current,
+          trigger: hero,
           start: 'top top',
           end: 'bottom top',
           scrub: true,
         },
       });
 
-      contentTl.to([titleRef.current, subtitleRef.current, ctaRef.current], {
+      contentTl.to([titleContainer, subtitleRef.current, ctaRef.current], {
         yPercent: 50,
         opacity: 0,
         ease: 'none',
       });
+
+      // Perspective tilt - el título sigue el cursor
+      const outerRX = gsap.quickTo(titleContainer, 'rotationX', { duration: 0.6, ease: 'power3' });
+      const outerRY = gsap.quickTo(titleContainer, 'rotationY', { duration: 0.6, ease: 'power3' });
+
+      const handlePointerMove = (e: PointerEvent) => {
+        const rect = hero.getBoundingClientRect();
+        const relX = (e.clientX - rect.left) / rect.width;
+        const relY = (e.clientY - rect.top) / rect.height;
+
+        outerRX(gsap.utils.interpolate(10, -10, relY));
+        outerRY(gsap.utils.interpolate(-10, 10, relX));
+      };
+
+      const handlePointerLeave = () => {
+        outerRX(0);
+        outerRY(0);
+      };
+
+      hero.addEventListener('pointermove', handlePointerMove);
+      hero.addEventListener('pointerleave', handlePointerLeave);
+
+      return () => {
+        hero.removeEventListener('pointermove', handlePointerMove);
+        hero.removeEventListener('pointerleave', handlePointerLeave);
+      };
     }, heroRef);
 
     return () => ctx.revert();
@@ -120,12 +180,24 @@ export function Hero() {
 
       {/* Contenido con parallax - capa más rápida */}
       <div className="relative z-10 container-custom text-center text-white px-4">
-        <h1
-          ref={titleRef}
-          className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-heading font-bold mb-4 md:mb-6"
+        {/* Título con perspective tilt */}
+        <div 
+          ref={titleContainerRef}
+          style={{ 
+            transformStyle: 'preserve-3d',
+            willChange: 'transform',
+          }}
         >
-          <span className="text-primary-500">Nan</span> Estetik
-        </h1>
+          <h1
+            ref={titleRef}
+            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-heading font-bold mb-4 md:mb-6"
+            style={{ 
+              transformStyle: 'preserve-3d',
+            }}
+          >
+            <span className="text-primary-500">Nan</span> Estetik
+          </h1>
+        </div>
         <p
           ref={subtitleRef}
           className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-6 md:mb-8 max-w-3xl mx-auto text-white/90"

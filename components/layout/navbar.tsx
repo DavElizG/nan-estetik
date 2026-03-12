@@ -79,8 +79,8 @@ export function Navbar() {
       className={clsx(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
         isScrolled
-          ? 'bg-black/70 backdrop-blur-xl py-3 md:py-4 border-b border-white/[0.03]'
-          : 'bg-transparent py-4 md:py-6'
+          ? 'bg-black/70 backdrop-blur-xl py-2 md:py-3 border-b border-white/[0.03]'
+          : 'bg-transparent py-3 md:py-4'
       )}
     >
       <div className="container-custom">

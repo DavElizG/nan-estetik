@@ -1,16 +1,16 @@
 /**
- * Gallery Section
+ * Gallery Intro Section
  * 
- * Efecto zoom-in que revela la galería completa
- * Integrado con Cloudinary para imágenes
+ * Transición tipo zoom ("Tu Belleza, Nuestro Arte")
+ * Hilos dorados animados en espaciador
+ * Solo zoom + transición a blanco — la galería está en DynamicGallery
  */
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { CldImage } from 'next-cloudinary';
 
 // Genera un path SVG con ola viajera
 function wavePathD(
@@ -34,84 +34,19 @@ const SPACER_THREADS = [
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface GalleryImage {
-  id: string;
-  publicId: string;
-  url: string;
-  width: number;
-  height: number;
-  alt: string;
-  aspect: 'tall' | 'wide' | 'square';
-  category?: string;
-}
-
-// Imágenes de respaldo cuando no hay conexión a Cloudinary
-const fallbackImages: Omit<GalleryImage, 'url' | 'width' | 'height'>[] = [
-  { id: '1', publicId: '', alt: 'Resultado de tratamiento', aspect: 'tall' },
-  { id: '2', publicId: '', alt: 'Transformación facial', aspect: 'wide' },
-  { id: '3', publicId: '', alt: 'Antes y después', aspect: 'square' },
-  { id: '4', publicId: '', alt: 'Resultado natural', aspect: 'square' },
-  { id: '5', publicId: '', alt: 'Tratamiento premium', aspect: 'tall' },
-  { id: '6', publicId: '', alt: 'Belleza radiante', aspect: 'wide' },
-];
-
-// Componente placeholder para cuando no hay imagen
-function GalleryPlaceholder({ aspect, isLoading }: { aspect: string; isLoading: boolean }) {
-  const aspectClass = 
-    aspect === 'tall' ? 'aspect-[3/4]' : 
-    aspect === 'wide' ? 'aspect-[16/9]' : 
-    'aspect-square';
-  
-  return (
-    <div 
-      className={`gallery-image w-full bg-gradient-to-br from-secondary-200 via-secondary-300 to-primary-200 will-change-transform ${isLoading ? 'animate-pulse' : ''} ${aspectClass}`}
-    />
-  );
-}
-
 export function GalleryIntro() {
   const sectionRef = useRef<HTMLElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const galleryRef = useRef<HTMLDivElement>(null);
-  const spacerRef = useRef<HTMLDivElement>(null);
   const spacerSvgRef = useRef<SVGSVGElement>(null);
-  
-  const [images, setImages] = useState<GalleryImage[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch images from Cloudinary
+  // Zoom timeline
   useEffect(() => {
-    async function fetchImages() {
-      try {
-        const response = await fetch('/api/gallery');
-        const result = await response.json();
-        
-        if (result.success && result.data.length > 0) {
-          setImages(result.data);
-        } else {
-          // Use fallback if no images from API
-          setImages(fallbackImages as GalleryImage[]);
-        }
-      } catch (error) {
-        console.error('Error fetching gallery images:', error);
-        setImages(fallbackImages as GalleryImage[]);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    
-    fetchImages();
-  }, []);
-
-  useEffect(() => {
-    if (typeof globalThis.window === 'undefined') return;
+    if (globalThis.window === undefined) return;
 
     const ctx = gsap.context(() => {
-      // Refresh ScrollTrigger para recalcular posiciones
       ScrollTrigger.refresh();
-      
-      // Timeline para sincronizar zoom y reveal
+
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -123,146 +58,35 @@ export function GalleryIntro() {
         },
       });
 
-      // 1. El texto completo hace zoom (centrado en la "l")
       tl.to(textRef.current, {
         scale: 80,
         duration: 0.8,
         ease: 'power2.inOut',
       }, 0);
 
-      // 2. El texto se desvanece cuando ya cubrió la pantalla
       tl.to(textRef.current, {
         opacity: 0,
         duration: 0.15,
       }, 0.75);
 
-      // 3. El contenido aparece
-      tl.fromTo(contentRef.current, 
-        {
-          opacity: 0,
-        },
-        {
-          opacity: 1,
-          duration: 0.15,
-        }, 
+      tl.fromTo(contentRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.15 },
         0.85
       );
-
-      // 4. Efecto parallax en las imágenes de la galería (delayed parallax)
-      const galleryCards = galleryRef.current?.querySelectorAll('.gallery-card');
-      
-      if (galleryCards) {
-        // Staggered reveal: las cards entran con fade + scale + movimiento Y
-        galleryCards.forEach((card, index) => {
-          gsap.fromTo(card, 
-            { 
-              opacity: 0, 
-              y: 80, 
-              scale: 0.92,
-            },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              duration: 0.8,
-              ease: 'power2.out',
-              scrollTrigger: {
-                trigger: card,
-                start: 'top 90%',
-                end: 'top 60%',
-                scrub: false,
-                toggleActions: 'play none none reverse',
-              },
-              delay: (index % 3) * 0.1, // stagger por columna
-            }
-          );
-
-          const innerContainer = card.querySelector('.inner-container') as HTMLElement;
-          const image = card.querySelector('.gallery-image') as HTMLElement;
-          
-          if (innerContainer && image) {
-            // Diferentes velocidades de scrub para cada card
-            const scrubValues = [0.5, 0.3, 0.7, 0.4, 0.6, 0.35];
-            const scrubValue = scrubValues[index % scrubValues.length];
-            
-            // Animación de la imagen (se mueve hacia arriba) - parallax más pronunciado
-            const imageAnim = gsap.to(image, {
-              yPercent: -30,
-              scale: 1.15,
-              ease: 'none',
-              paused: true
-            });
-            
-            const progressTo = gsap.quickTo(imageAnim, 'progress', {
-              ease: 'power3',
-              duration: scrubValue
-            });
-            
-            // Animación del contenedor
-            gsap.to(innerContainer, {
-              yPercent: 30,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: card,
-                scrub: true,
-                start: 'top bottom',
-                end: 'bottom top',
-                onUpdate: self => progressTo(self.progress)
-              }
-            });
-          }
-        });
-      }
-
-      // 5. Animación del título de la galería
-      const galleryTitle = document.querySelector('.gallery-title-block');
-      if (galleryTitle) {
-        gsap.fromTo(galleryTitle,
-          { opacity: 0, y: 40 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: galleryTitle,
-              start: 'top 85%',
-              toggleActions: 'play none none reverse',
-            },
-          }
-        );
-      }
-
-      // 6. Animación de la línea decorativa del título
-      const galleryLine = document.querySelector('.gallery-title-line');
-      if (galleryLine) {
-        gsap.fromTo(galleryLine,
-          { scaleX: 0 },
-          {
-            scaleX: 1,
-            duration: 0.8,
-            ease: 'power2.inOut',
-            scrollTrigger: {
-              trigger: galleryLine,
-              start: 'top 85%',
-              toggleActions: 'play none none reverse',
-            },
-          }
-        );
-      }
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
-  // Animación de olas viajeras en los hilos del espaciador
+  // Animated wave threads
   useEffect(() => {
     if (!spacerSvgRef.current) return;
     let rafId: number;
     const paths = spacerSvgRef.current.querySelectorAll('path');
 
     const animate = (time: number) => {
-      const t = time * 0.001; // a segundos
+      const t = time * 0.001;
       paths.forEach((path, i) => {
         const cfg = SPACER_THREADS[i];
         if (!cfg) return;
@@ -275,35 +99,27 @@ export function GalleryIntro() {
     return () => cancelAnimationFrame(rafId);
   }, []);
 
-  // Items to display (use fetched images or show loading placeholders)
-  const displayItems = images.length > 0 ? images : fallbackImages;
-
   return (
     <>
-      {/* Espaciador con hilos dorados animados antes de gallery */}
-      <div ref={spacerRef} className="h-[50vh] bg-black relative overflow-hidden z-30">
-        {/* Hilos dorados — olas viajeras */}
+      {/* Espaciador con hilos dorados */}
+      <div className="h-[50vh] bg-black relative overflow-hidden z-30">
         <svg ref={spacerSvgRef} className="absolute inset-0 w-full h-full opacity-20 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 1440 400">
-          {SPACER_THREADS.map((cfg, i) => (
-            <path key={i} fill="none" stroke="#d4af37" strokeWidth={cfg.sw} />
+          {SPACER_THREADS.map((cfg) => (
+            <path key={`thread-${cfg.baseY}`} fill="none" stroke="#d4af37" strokeWidth={cfg.sw} />
           ))}
         </svg>
       </div>
-      
-      {/* Sección del zoom */}
+
+      {/* Zoom section */}
       <section
         id="galeria"
         ref={sectionRef}
         className="h-screen relative flex items-center justify-center bg-black overflow-hidden z-30"
       >
-        {/* Texto que hace zoom completo */}
         <div
           ref={textRef}
           className="relative flex flex-col items-center justify-center text-center leading-none"
-          style={{ 
-            zIndex: 10,
-            transformOrigin: 'center center',
-          }}
+          style={{ zIndex: 10, transformOrigin: 'center center' }}
         >
           <span className="text-[8px] uppercase tracking-[0.4em] text-secondary-500 mb-4">
             Descubre
@@ -319,85 +135,12 @@ export function GalleryIntro() {
           </span>
         </div>
 
-        {/* Overlay blanco para transición */}
+        {/* White overlay for transition */}
         <div
           ref={contentRef}
-          className="absolute inset-0 opacity-0 bg-white"
+          className="absolute inset-0 opacity-0 bg-cream-50"
           style={{ zIndex: 30 }}
         />
-      </section>
-
-      {/* Sección de galería separada - fluye normalmente */}
-      <section className="bg-white py-12 md:py-20 lg:py-24 min-h-screen overflow-hidden">
-        <div className="container-custom w-full px-4">
-          {/* Título */}
-          <div className="gallery-title-block text-center mb-10 md:mb-16">
-            <h3 className="text-2xl sm:text-3xl md:text-5xl font-heading font-bold text-secondary-900 mb-3 md:mb-4">
-              Nuestros Resultados
-            </h3>
-            <div className="gallery-title-line w-20 md:w-24 h-1 bg-primary-500 mx-auto mb-3 md:mb-4 origin-center" />
-            <p className="text-sm md:text-base lg:text-lg text-secondary-600 max-w-2xl mx-auto px-4">
-              Descubre las transformaciones de nuestros pacientes.
-            </p>
-          </div>
-
-          {/* Grid de galería */}
-          <div
-            ref={galleryRef}
-            className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-12 md:mb-16"
-          >
-              {displayItems.map((item) => (
-                <div
-                  key={item.id}
-                  className={`
-                    gallery-card
-                    relative overflow-hidden rounded-xl cursor-pointer group
-                    transition-shadow duration-300 hover:shadow-2xl hover:shadow-primary-500/20
-                    ${item.aspect === 'tall' ? 'row-span-2' : ''}
-                    ${item.aspect === 'wide' ? 'col-span-2' : ''}
-                  `}
-                >
-                  {/* Inner container para el efecto parallax */}
-                  <div className="inner-container w-full h-full overflow-hidden">
-                    {item.publicId ? (
-                      <CldImage
-                        src={item.publicId}
-                        alt={item.alt}
-                        width={item.aspect === 'wide' ? 800 : 400}
-                        height={item.aspect === 'tall' ? 800 : 400}
-                        className="gallery-image w-full h-full object-cover will-change-transform"
-                        sizes="(max-width: 768px) 50vw, 33vw"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <GalleryPlaceholder aspect={item.aspect} isLoading={isLoading} />
-                    )}
-                  </div>
-                  
-                  <div className="absolute inset-0 bg-gradient-to-t from-secondary-900/80 via-secondary-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pointer-events-none pb-6">
-                    <span className="text-white font-semibold text-lg translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                      {item.alt || 'Ver detalles'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* CTA */}
-            <div className="text-center">
-              <p className="text-secondary-600 mb-4">
-                ¿Quieres ver más resultados?
-              </p>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary"
-              >
-                Visita nuestro Instagram
-              </a>
-            </div>
-          </div>
       </section>
     </>
   );
