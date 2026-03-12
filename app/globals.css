@@ -139,6 +139,13 @@ canvas {
   scroll-snap-align: start;
 }
 
+/* Custom cursor — ocultar cursor nativo en desktop */
+@media (min-width: 768px) and (hover: hover) and (pointer: fine) {
+  * {
+    cursor: none !important;
+  }
+}
+
 /* ============================================ */
 /* OPTIMIZACIONES RESPONSIVE PARA MÓVILES */
 /* ============================================ */

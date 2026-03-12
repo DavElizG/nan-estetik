@@ -16,10 +16,12 @@ import { Contact } from '@/components/sections/contact';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { ContentWrapper } from '@/components/sections/content-wrapper';
+import { CursorTrail } from '@/components/ui/cursor-trail';
 
 export default function HomePage() {
   return (
     <>
+      <CursorTrail />
       <Navbar />
       <main>
         <Hero />
