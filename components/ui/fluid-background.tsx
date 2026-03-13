@@ -7,12 +7,14 @@ const FluidBackground = () => {
   useEffect(() => {
     let disposed = false;
     let fluidInstance: any = null;
+    let ambientSplatTimer: ReturnType<typeof setInterval> | null = null;
     let containerStyleGuard: ReturnType<typeof setInterval> | null = null;
     let containerResizeObserver: ResizeObserver | null = null;
-    let footerElement: HTMLElement | null = null;
-    let lastPointerX: number | null = null;
-    let lastPointerY: number | null = null;
-    let lastPointerTime = 0;
+    let pointerTarget: HTMLElement | null = null;
+    let pointerX = 0;
+    let pointerY = 0;
+    let hasPointer = false;
+    let lastPointerTs = 0;
 
     const pinContainerAsBackground = (container: HTMLDivElement) => {
       container.style.setProperty('position', 'absolute', 'important');
@@ -40,72 +42,72 @@ const FluidBackground = () => {
       fluidInstance = new WebGLFluidEnhanced(container);
       pinContainerAsBackground(container);
       fluidInstance.setConfig({
-        simResolution: isMobile || isLowPower ? 64 : 96,
-        dyeResolution: isMobile || isLowPower ? 512 : 768,
-        densityDissipation: 0.92,
-        velocityDissipation: 0.18,
+        simResolution: isMobile || isLowPower ? 96 : 160,
+        dyeResolution: isMobile || isLowPower ? 512 : 1024,
+        densityDissipation: 0.994,
+        velocityDissipation: 0.12,
         pressure: 0.8,
-        pressureIterations: isMobile || isLowPower ? 14 : 18,
-        curl: 26,
-        splatRadius: isMobile ? 0.12 : 0.1,
-        splatForce: isMobile ? 3600 : 5200,
+        pressureIterations: isMobile || isLowPower ? 16 : 24,
+        curl: 16,
+        splatRadius: isMobile ? 0.09 : 0.07,
+        splatForce: isMobile ? 1800 : 2400,
         shading: true,
         colorful: false,
-        colorPalette: ['#967724', '#b8942d', '#d4af37', '#e4c56d'],
+        colorPalette: ['#4a3a12', '#7a6020', '#967724', '#b8942d'],
         hover: false,
         backgroundColor: '#0a0a0a',
         transparent: false,
-        brightness: 0.95,
+        brightness: 0.66,
         bloom: false,
         sunrays: false,
       });
       fluidInstance.start();
-      fluidInstance.multipleSplats(isMobile ? 2 : 4);
+      fluidInstance.multipleSplats(isMobile ? 3 : 5);
 
       const handlePointerMove = (event: PointerEvent) => {
-        if (disposed || !fluidInstance) return;
-
         const now = performance.now();
-        if (now - lastPointerTime < 16) return;
-        lastPointerTime = now;
+        if (now - lastPointerTs < 16) return;
+        lastPointerTs = now;
 
-        if (lastPointerX === null || lastPointerY === null) {
-          lastPointerX = event.clientX;
-          lastPointerY = event.clientY;
+        if (!hasPointer) {
+          pointerX = event.clientX;
+          pointerY = event.clientY;
+          hasPointer = true;
           return;
         }
 
-        const dx = event.clientX - lastPointerX;
-        const dy = event.clientY - lastPointerY;
+        const dx = event.clientX - pointerX;
+        const dy = event.clientY - pointerY;
+        pointerX = event.clientX;
+        pointerY = event.clientY;
 
-        lastPointerX = event.clientX;
-        lastPointerY = event.clientY;
-
-        // Avoid generating splats from tiny pointer jitter.
         if (Math.abs(dx) + Math.abs(dy) < 0.8) return;
 
-        fluidInstance.splatAtLocation(
+        fluidInstance?.splatAtLocation(
           event.clientX,
           event.clientY,
-          dx * 16,
-          dy * 16,
-          '#d4af37'
+          dx * 14,
+          dy * 14,
+          '#b8942d'
         );
       };
 
       const handlePointerLeave = () => {
-        lastPointerX = null;
-        lastPointerY = null;
+        hasPointer = false;
       };
 
-      footerElement = container.closest('footer');
-      const interactionTarget = footerElement ?? container;
-      interactionTarget.addEventListener('pointermove', handlePointerMove, { passive: true });
-      interactionTarget.addEventListener('pointerleave', handlePointerLeave);
+      pointerTarget = container.closest('footer') ?? container;
+      pointerTarget.addEventListener('pointermove', handlePointerMove, { passive: true });
+      pointerTarget.addEventListener('pointerleave', handlePointerLeave);
 
-      (container as any).__fluidPointerMove = handlePointerMove;
-      (container as any).__fluidPointerLeave = handlePointerLeave;
-      (container as any).__fluidInteractionTarget = interactionTarget;
+      (container as any).__pointerMove = handlePointerMove;
+      (container as any).__pointerLeave = handlePointerLeave;
+
+      ambientSplatTimer = setInterval(() => {
+        if (!disposed) {
+          fluidInstance?.multipleSplats(1);
+        }
+      }, isMobile ? 4500 : 3600);
 
       const syncCanvasToFooter = () => {
         const canvas = container.querySelector('canvas');
@@ -147,15 +149,17 @@ const FluidBackground = () => {
       const observer = (containerRef.current as any)?.__fluidObserver as MutationObserver | undefined;
       observer?.disconnect();
       containerResizeObserver?.disconnect();
+      if (ambientSplatTimer) {
+        clearInterval(ambientSplatTimer);
+      }
       if (containerStyleGuard) {
         clearInterval(containerStyleGuard);
       }
-      const interactionTarget = (containerRef.current as any)?.__fluidInteractionTarget as HTMLElement | undefined;
-      const pointerMove = (containerRef.current as any)?.__fluidPointerMove as ((event: PointerEvent) => void) | undefined;
-      const pointerLeave = (containerRef.current as any)?.__fluidPointerLeave as (() => void) | undefined;
-      if (interactionTarget && pointerMove && pointerLeave) {
-        interactionTarget.removeEventListener('pointermove', pointerMove);
-        interactionTarget.removeEventListener('pointerleave', pointerLeave);
+      const pointerMove = (containerRef.current as any)?.__pointerMove as ((event: PointerEvent) => void) | undefined;
+      const pointerLeave = (containerRef.current as any)?.__pointerLeave as (() => void) | undefined;
+      if (pointerTarget && pointerMove && pointerLeave) {
+        pointerTarget.removeEventListener('pointermove', pointerMove);
+        pointerTarget.removeEventListener('pointerleave', pointerLeave);
       }
       fluidInstance?.stop();
     };
