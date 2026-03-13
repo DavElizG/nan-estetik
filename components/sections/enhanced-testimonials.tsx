@@ -180,13 +180,13 @@ export function EnhancedTestimonials() {
     <section
       ref={sectionRef}
       id="testimonios"
-      className="relative bg-secondary-900 overflow-visible"
+      className="relative bg-primary-50 overflow-visible"
       style={{ minHeight: '140vh' }}
     >
       {/* Background sutil */}
       <div className="absolute inset-0">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_40%,_rgba(212,175,55,0.06),_transparent_50%)]" />
-        <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_70%,_rgba(212,175,55,0.04),_transparent_50%)]" />
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_40%,_rgba(212,175,55,0.08),_transparent_50%)]" />
+        <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_70%,_rgba(212,175,55,0.05),_transparent_50%)]" />
       </div>
 
       {/* Contenedor con título central y cards flotantes */}
@@ -198,13 +198,13 @@ export function EnhancedTestimonials() {
         {/* Título central gigante */}
         <div className="testimonials-title absolute inset-0 flex items-center justify-center pointer-events-none z-[1]">
           <div className="text-center px-4">
-            <span className="text-xs uppercase tracking-[0.4em] text-primary-400/60 font-semibold mb-4 block">
+            <span className="text-xs uppercase tracking-[0.4em] text-primary-600/60 font-semibold mb-4 block">
               Testimonios
             </span>
             <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-heading font-black leading-[0.9]">
-              <span className="block text-white/10">Lo Que</span>
-              <span className="block text-primary-500/20">Dicen</span>
-              <span className="block text-white/10">De Nosotros</span>
+              <span className="block text-secondary-900/8">Lo Que</span>
+              <span className="block text-primary-500/25">Dicen</span>
+              <span className="block text-secondary-900/8">De Nosotros</span>
             </h2>
           </div>
         </div>
@@ -223,7 +223,7 @@ export function EnhancedTestimonials() {
               willChange: 'transform',
             }}
           >
-            <div className="bg-white/[0.06] backdrop-blur-md border border-primary-500/15 rounded-2xl p-4 md:p-5 hover:bg-white/[0.1] hover:border-primary-500/30 transition-all duration-500 group cursor-default">
+            <div className="bg-white shadow-md border border-primary-200/60 rounded-2xl p-4 md:p-5 hover:shadow-lg hover:border-primary-400/40 transition-all duration-500 group cursor-default">
               {/* Stars */}
               <div className="flex gap-0.5 mb-2">
                 {Array.from({ length: t.rating }, (_, i) => (
@@ -235,18 +235,18 @@ export function EnhancedTestimonials() {
               </div>
 
               {/* Quote */}
-              <p className="text-white/80 text-xs md:text-sm leading-relaxed mb-3">
+              <p className="text-secondary-600 text-xs md:text-sm leading-relaxed mb-3">
                 &ldquo;{t.text}&rdquo;
               </p>
 
               {/* Author */}
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-white text-xs font-semibold">{t.name}</p>
-                  <p className="text-primary-400/70 text-[10px]">{t.treatment}</p>
+                  <p className="text-secondary-900 text-xs font-semibold">{t.name}</p>
+                  <p className="text-primary-500/70 text-[10px]">{t.treatment}</p>
                 </div>
-                <div className="w-6 h-6 rounded-full bg-primary-500/20 border border-primary-400/30 flex items-center justify-center">
-                  <span className="text-primary-400 text-[8px] font-bold">
+                <div className="w-6 h-6 rounded-full bg-primary-500/15 border border-primary-400/40 flex items-center justify-center">
+                  <span className="text-primary-600 text-[8px] font-bold">
                     {t.name.charAt(0)}
                   </span>
                 </div>
@@ -257,8 +257,8 @@ export function EnhancedTestimonials() {
       </div>
 
       {/* Líneas decorativas sutiles */}
-      <div className="absolute top-1/4 left-0 w-32 h-px bg-gradient-to-r from-transparent to-primary-500/10 pointer-events-none" />
-      <div className="absolute bottom-1/3 right-0 w-40 h-px bg-gradient-to-l from-transparent to-primary-500/10 pointer-events-none" />
+      <div className="absolute top-1/4 left-0 w-32 h-px bg-gradient-to-r from-transparent to-primary-500/15 pointer-events-none" />
+      <div className="absolute bottom-1/3 right-0 w-40 h-px bg-gradient-to-l from-transparent to-primary-500/15 pointer-events-none" />
     </section>
   );
 }

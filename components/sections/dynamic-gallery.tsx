@@ -576,6 +576,7 @@ export function DynamicGallery() {
           </a>
         </div>
       </div>
+
     </div>
   );
 }

@@ -66,7 +66,7 @@ export function HorizontalText() {
   return (
     <section
       ref={sectionRef}
-      className="relative h-screen overflow-hidden bg-secondary-900 text-white"
+      className="relative h-screen overflow-hidden bg-primary-50 text-secondary-900"
       aria-label="Mensaje horizontal animado"
     >
       <div className="flex h-full items-center">
