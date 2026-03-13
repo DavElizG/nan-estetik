@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image from 'next/image';
@@ -23,147 +23,74 @@ interface ScatteredImage {
   top: string;
   width: string;
   height: string;
-  label?: string; // Etiqueta pequeña tipo "MARZO 2024"
+  label?: string;
 }
 
-// Layout estilo Lando Norris: imágenes hero grandes + clusters de pequeñas
-// Strip 500vw de ancho → ~5 "pantallas" con 3-5 imágenes cada una en clusters
-const scatteredImages: ScatteredImage[] = [
-  // Panel 1 (0-100vw) - Cluster inicial
-  // Imagen pequeña arriba-izquierda
-  {
-    src: '/images/WhatsApp Image 2026-02-22 at 3.20.37 PM.jpeg',
-    alt: 'Tratamiento estético', type: 'image',
-    left: '8vw', top: '10%', width: '14vw', height: '32%',
-    label: 'FACIAL, 2026',
-  },
-  // Imagen HERO grande centro
-  {
-    src: '/images/WhatsApp Video 2026-02-22 at 3.20.38 PM.mp4',
-    alt: 'Procedimiento en video', type: 'video',
-    left: '32vw', top: '20%', width: '32vw', height: '60%',
-    label: 'TRATAMIENTO AVANZADO',
-  },
-  // Imagen pequeña arriba-derecha
-  {
-    src: '/images/WhatsApp Image 2026-02-22 at 3.22.17 PM.jpeg',
-    alt: 'Resultado natural', type: 'image',
-    left: '72vw', top: '8%', width: '16vw', height: '36%',
-    label: 'FEBRERO, 2026',
-  },
-  // Imagen mediana abajo-derecha
-  {
-    src: '/images/WhatsApp Image 2026-02-22 at 3.20.37 PM (1).jpeg',
-    alt: 'Antes y después', type: 'image',
-    left: '70vw', top: '58%', width: '18vw', height: '38%',
-    label: 'ANTES & DESPUÉS',
-  },
-
-  // Panel 2 (100-200vw) - Cluster medio
-  // Imagen mediana arriba
-  {
-    src: '/images/WhatsApp Image 2026-02-22 at 3.20.38 PM.jpeg',
-    alt: 'Resultado facial', type: 'image',
-    left: '110vw', top: '12%', width: '20vw', height: '42%',
-    label: 'RELLENO LABIAL',
-  },
-  // Imagen grande centro-derecha
-  {
-    src: '/images/WhatsApp Image 2026-02-22 at 3.22.18 PM.jpeg',
-    alt: 'Transformación', type: 'image',
-    left: '140vw', top: '25%', width: '28vw', height: '52%',
-    label: 'ENERO, 2026',
-  },
-  // Imagen pequeña abajo-izquierda
-  {
-    src: '/images/WhatsApp Image 2026-02-22 at 3.20.37 PM (2).jpeg',
-    alt: 'Belleza natural', type: 'image',
-    left: '108vw', top: '62%', width: '14vw', height: '30%',
-    label: 'SKINCARE',
-  },
-  // Imagen mediana derecha
-  {
-    src: '/images/WhatsApp Video 2026-02-22 at 3.20.41 PM.mp4',
-    alt: 'Proceso de tratamiento', type: 'video',
-    left: '175vw', top: '15%', width: '18vw', height: '40%',
-    label: 'PROCESO',
-  },
-
-  // Panel 3 (200-300vw) - Con el título + imágenes
-  // Imagen pequeña arriba-izquierda
-  {
-    src: '/images/WhatsApp Image 2026-02-22 at 3.20.38 PM (1).jpeg',
-    alt: 'Cuidado facial', type: 'image',
-    left: '205vw', top: '8%', width: '15vw', height: '34%',
-    label: 'DICIEMBRE, 2025',
-  },
-  // Imagen pequeña abajo-derecha del título
-  {
-    src: '/images/WhatsApp Image 2026-02-22 at 3.22.17 PM (1).jpeg',
-    alt: 'Resultado premium', type: 'image',
-    left: '275vw', top: '58%', width: '16vw', height: '36%',
-    label: 'REJUVENECIMIENTO',
-  },
-
-  // Panel 4 (300-400vw) - Cluster post-título
-  // Imagen HERO grande izquierda
-  {
-    src: '/images/WhatsApp Image 2026-02-22 at 3.20.37 PM (3).jpeg',
-    alt: 'Tratamiento profesional', type: 'image',
-    left: '310vw', top: '15%', width: '30vw', height: '58%',
-    label: 'HARMONIZACIÓN FACIAL',
-  },
-  // Imagen mediana arriba-derecha
-  {
-    src: '/images/WhatsApp Image 2026-02-22 at 3.22.18 PM (1).jpeg',
-    alt: 'Resultado espectacular', type: 'image',
-    left: '352vw', top: '10%', width: '18vw', height: '38%',
-    label: 'NOVIEMBRE, 2025',
-  },
-  // Imagen pequeña abajo-derecha
-  {
-    src: '/images/WhatsApp Image 2026-02-22 at 3.20.38 PM (2).jpeg',
-    alt: 'Rejuvenecimiento', type: 'image',
-    left: '378vw', top: '60%', width: '14vw', height: '32%',
-    label: 'BOTOX',
-  },
-
-  // Panel 5 (400-500vw) - Cluster final
-  // Imagen mediana arriba-izquierda
-  {
-    src: '/images/WhatsApp Video 2026-02-22 at 3.20.42 PM.mp4',
-    alt: 'Sesión de tratamiento', type: 'video',
-    left: '415vw', top: '12%', width: '22vw', height: '46%',
-    label: 'SESIÓN EN VIVO',
-  },
-  // Imagen grande centro-derecha
-  {
-    src: '/images/WhatsApp Image 2026-02-22 at 3.20.37 PM (4).jpeg',
-    alt: 'Belleza radiante', type: 'image',
-    left: '448vw', top: '22%', width: '26vw', height: '54%',
-    label: 'OCTUBRE, 2025',
-  },
-  // Imagen pequeña abajo
-  {
-    src: '/images/WhatsApp Image 2026-02-22 at 3.22.18 PM (2).jpeg',
-    alt: 'Transformación completa', type: 'image',
-    left: '420vw', top: '65%', width: '14vw', height: '30%',
-    label: 'PEELING',
-  },
-  // Imagen mediana derecha
-  {
-    src: '/images/WhatsApp Image 2026-02-22 at 3.20.38 PM (3).jpeg',
-    alt: 'Arte estético', type: 'image',
-    left: '480vw', top: '10%', width: '16vw', height: '36%',
-    label: 'RADIOFRECUENCIA',
-  },
+// Layout template: posiciones fijas, las URLs vienen de Cloudinary
+const layoutTemplate: Omit<ScatteredImage, 'src'>[] = [
+  // Panel 1
+  { alt: 'Tratamiento estético',     type: 'image', left: '8vw',   top: '10%', width: '14vw', height: '32%', label: 'FACIAL, 2026' },
+  { alt: 'Procedimiento en video',   type: 'video', left: '32vw',  top: '20%', width: '32vw', height: '60%', label: 'TRATAMIENTO AVANZADO' },
+  { alt: 'Resultado natural',        type: 'image', left: '72vw',  top: '8%',  width: '16vw', height: '36%', label: 'FEBRERO, 2026' },
+  { alt: 'Antes y después',          type: 'image', left: '70vw',  top: '58%', width: '18vw', height: '38%', label: 'ANTES & DESPUÉS' },
+  // Panel 2
+  { alt: 'Resultado facial',         type: 'image', left: '110vw', top: '12%', width: '20vw', height: '42%', label: 'RELLENO LABIAL' },
+  { alt: 'Transformación',           type: 'image', left: '140vw', top: '25%', width: '28vw', height: '52%', label: 'ENERO, 2026' },
+  { alt: 'Belleza natural',          type: 'image', left: '108vw', top: '62%', width: '14vw', height: '30%', label: 'SKINCARE' },
+  { alt: 'Proceso de tratamiento',   type: 'video', left: '175vw', top: '15%', width: '18vw', height: '40%', label: 'PROCESO' },
+  // Panel 3
+  { alt: 'Cuidado facial',           type: 'image', left: '205vw', top: '8%',  width: '15vw', height: '34%', label: 'DICIEMBRE, 2025' },
+  { alt: 'Resultado premium',        type: 'image', left: '275vw', top: '58%', width: '16vw', height: '36%', label: 'REJUVENECIMIENTO' },
+  // Panel 4
+  { alt: 'Tratamiento profesional',  type: 'image', left: '310vw', top: '15%', width: '30vw', height: '58%', label: 'HARMONIZACIÓN FACIAL' },
+  { alt: 'Resultado espectacular',   type: 'image', left: '352vw', top: '10%', width: '18vw', height: '38%', label: 'NOVIEMBRE, 2025' },
+  { alt: 'Rejuvenecimiento',         type: 'image', left: '378vw', top: '60%', width: '14vw', height: '32%', label: 'BOTOX' },
+  // Panel 5
+  { alt: 'Sesión de tratamiento',    type: 'video', left: '415vw', top: '12%', width: '22vw', height: '46%', label: 'SESIÓN EN VIVO' },
+  { alt: 'Belleza radiante',         type: 'image', left: '448vw', top: '22%', width: '26vw', height: '54%', label: 'OCTUBRE, 2025' },
+  { alt: 'Transformación completa',  type: 'image', left: '420vw', top: '65%', width: '14vw', height: '30%', label: 'PEELING' },
+  { alt: 'Arte estético',            type: 'image', left: '480vw', top: '10%', width: '16vw', height: '36%', label: 'RADIOFRECUENCIA' },
 ];
 
 export function DynamicGallery() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
+  const [scatteredImages, setScatteredImages] = useState<ScatteredImage[]>([]);
+
+  // Carga imágenes y videos desde Cloudinary
+  useEffect(() => {
+    async function loadMedia() {
+      const [imgRes, vidRes] = await Promise.all([
+        fetch('/api/gallery').then(r => r.json()).catch(() => ({ data: [] })),
+        fetch('/api/gallery?type=video').then(r => r.json()).catch(() => ({ data: [] })),
+      ]);
+
+      const cloudImages: { url: string }[] = imgRes.data || [];
+      const cloudVideos: { url: string }[] = vidRes.data || [];
+
+      let imgIdx = 0;
+      let vidIdx = 0;
+
+      const mapped = layoutTemplate.map(item => {
+        if (item.type === 'video') {
+          const src = cloudVideos[vidIdx]?.url || '';
+          vidIdx++;
+          return { ...item, src };
+        } else {
+          const src = cloudImages[imgIdx]?.url || '';
+          imgIdx++;
+          return { ...item, src };
+        }
+      });
+
+      setScatteredImages(mapped);
+    }
+
+    loadMedia();
+  }, []);
 
   useEffect(() => {
+    if (scatteredImages.length === 0) return;
     const wrapper = wrapperRef.current;
     const strip = stripRef.current;
     if (!wrapper || !strip) return;
@@ -307,7 +234,7 @@ export function DynamicGallery() {
       wrapper.removeEventListener('mousemove', handleMouseMove);
       wrapper.removeEventListener('mouseleave', resetAnimators);
     };
-  }, []);
+  }, [scatteredImages]);
 
   return (
     <div

@@ -5,12 +5,13 @@
  */
 
 import { NextResponse } from 'next/server';
-import { 
-  getImagesFromFolder, 
-  getImagesByTag, 
+import {
+  getImagesFromFolder,
+  getImagesByTag,
   getAllImages,
+  getAllVideos,
   transformToGalleryImages,
-  type GalleryImage 
+  type GalleryImage
 } from '@/lib/cloudinary';
 
 export async function GET(request: Request) {
@@ -18,16 +19,17 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const folder = searchParams.get('folder');
     const tag = searchParams.get('tag');
-    
+    const type = searchParams.get('type'); // 'image' | 'video'
+
     let cloudinaryImages;
-    
-    // Fetch images by tag, folder, or all images
-    if (tag) {
+
+    if (type === 'video') {
+      cloudinaryImages = await getAllVideos();
+    } else if (tag) {
       cloudinaryImages = await getImagesByTag(tag);
     } else if (folder) {
       cloudinaryImages = await getImagesFromFolder(folder);
     } else {
-      // Default: get all images
       cloudinaryImages = await getAllImages();
     }
     

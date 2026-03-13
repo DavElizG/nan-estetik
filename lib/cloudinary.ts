@@ -46,8 +46,27 @@ export interface GalleryImage {
 }
 
 /**
+ * Get all videos from Cloudinary
+ */
+export async function getAllVideos(maxResults: number = 10): Promise<CloudinaryImage[]> {
+  try {
+    const result = await cloudinary.search
+      .expression('resource_type:video')
+      .sort_by('created_at', 'desc')
+      .max_results(maxResults)
+      .with_field('context')
+      .execute();
+
+    return result.resources as CloudinaryImage[];
+  } catch (error) {
+    console.error('Error fetching videos from Cloudinary:', error);
+    return [];
+  }
+}
+
+/**
  * Get all images from Cloudinary (no folder filter)
- * 
+ *
  * @param maxResults - Maximum number of results to return
  */
 export async function getAllImages(maxResults: number = 50): Promise<CloudinaryImage[]> {
