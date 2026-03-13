@@ -17,10 +17,15 @@ import { Footer } from '@/components/layout/footer';
 import { ContentWrapper } from '@/components/sections/content-wrapper';
 import { CursorTrail } from '@/components/ui/cursor-trail';
 import { BackgroundElements } from '@/components/ui/background-elements';
+import FluidBackground from '@/components/ui/fluid-background';
 
 export default function HomePage() {
   return (
     <>
+      {/* Fixed fluid ripple background — covers entire viewport, behind everything */}
+      <div className="fixed inset-0 z-0">
+        <FluidBackground />
+      </div>
       <BackgroundElements />
       <CursorTrail />
       <Navbar />

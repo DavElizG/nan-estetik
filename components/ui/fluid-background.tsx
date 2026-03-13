@@ -1,167 +1,157 @@
 "use client";
 import { useEffect, useRef } from 'react';
 
+const RIPPLE_TEXTURE = `data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+    <defs>
+      <radialGradient id="g" cx="50%" cy="50%" r="70%">
+        <stop offset="0%" stop-color="#1b1406"/>
+        <stop offset="38%" stop-color="#141005"/>
+        <stop offset="60%" stop-color="#0f0b04"/>
+        <stop offset="100%" stop-color="#070707"/>
+      </radialGradient>
+    </defs>
+    <rect width="256" height="256" fill="url(#g)"/>
+  </svg>`
+)}`;
+
 const FluidBackground = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let disposed = false;
-    let fluidInstance: any = null;
-    let ambientSplatTimer: ReturnType<typeof setInterval> | null = null;
-    let containerStyleGuard: ReturnType<typeof setInterval> | null = null;
-    let containerResizeObserver: ResizeObserver | null = null;
+    let destroyed = false;
+    let resizeObserver: ResizeObserver | null = null;
     let pointerTarget: HTMLElement | null = null;
     let pointerX = 0;
     let pointerY = 0;
     let hasPointer = false;
     let lastPointerTs = 0;
-
-    const pinContainerAsBackground = (container: HTMLDivElement) => {
-      container.style.setProperty('position', 'absolute', 'important');
-      container.style.setProperty('inset', '0', 'important');
-      container.style.setProperty('width', '100%', 'important');
-      container.style.setProperty('height', '100%', 'important');
-      container.style.setProperty('z-index', '2', 'important');
-      container.style.setProperty('overflow', 'hidden', 'important');
-      container.style.setProperty('background-color', '#0a0a0a', 'important');
-      container.style.setProperty('pointer-events', 'auto', 'important');
-    };
+    let jq: any = null;
+    let ambientDropTimer: ReturnType<typeof setInterval> | null = null;
 
     const setup = async () => {
       if (!containerRef.current) return;
       const container = containerRef.current;
 
-      const fluidModule = await import('webgl-fluid-enhanced');
-      const WebGLFluidEnhanced = fluidModule.default;
+      const jqueryMod: any = await import('jquery');
+      jq = jqueryMod.default ?? jqueryMod;
+      (globalThis as any).jQuery = jq;
+      (globalThis as any).$ = jq;
+      await import('jquery.ripples');
 
-      if (!containerRef.current || disposed) return;
+      if (destroyed || !containerRef.current) return;
 
-      const isMobile = globalThis.matchMedia('(max-width: 768px)').matches;
-      const isLowPower = globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      fluidInstance = new WebGLFluidEnhanced(container);
-      pinContainerAsBackground(container);
-      fluidInstance.setConfig({
-        simResolution: isMobile || isLowPower ? 96 : 160,
-        dyeResolution: isMobile || isLowPower ? 512 : 1024,
-        densityDissipation: 0.994,
-        velocityDissipation: 0.12,
-        pressure: 0.8,
-        pressureIterations: isMobile || isLowPower ? 16 : 24,
-        curl: 16,
-        splatRadius: isMobile ? 0.09 : 0.07,
-        splatForce: isMobile ? 1800 : 2400,
-        shading: true,
-        colorful: false,
-        colorPalette: ['#4a3a12', '#7a6020', '#967724', '#b8942d'],
-        hover: false,
-        backgroundColor: '#0a0a0a',
-        transparent: false,
-        brightness: 0.66,
-        bloom: false,
-        sunrays: false,
+      const $container = jq(container);
+      $container.ripples({
+        imageUrl: RIPPLE_TEXTURE,
+        resolution: 384,
+        dropRadius: 20,
+        perturbance: 0.018,
+        interactive: false,
+        crossOrigin: '',
       });
-      fluidInstance.start();
-      fluidInstance.multipleSplats(isMobile ? 3 : 5);
+
+      const styleRippleCanvas = () => {
+        const rippleCanvas = container.querySelector('canvas');
+        if (!rippleCanvas) return;
+        rippleCanvas.style.filter = 'sepia(1) hue-rotate(338deg) saturate(2.2) brightness(0.82) contrast(1.08)';
+        rippleCanvas.style.opacity = '0.95';
+      };
+      styleRippleCanvas();
+
+      // Seed a subtle initial wave so the surface does not feel static.
+      const initialRect = container.getBoundingClientRect();
+      $container.ripples('drop', initialRect.width * 0.55, initialRect.height * 0.62, 26, 0.012);
 
       const handlePointerMove = (event: PointerEvent) => {
         const now = performance.now();
-        if (now - lastPointerTs < 16) return;
+        if (now - lastPointerTs < 30) return;
         lastPointerTs = now;
 
+        const rect = container.getBoundingClientRect();
+        const localX = event.clientX - rect.left;
+        const localY = event.clientY - rect.top;
+
+        const inside = localX >= 0 && localX <= rect.width && localY >= 0 && localY <= rect.height;
+        if (!inside) {
+          hasPointer = false;
+          return;
+        }
+
         if (!hasPointer) {
-          pointerX = event.clientX;
-          pointerY = event.clientY;
+          pointerX = localX;
+          pointerY = localY;
           hasPointer = true;
           return;
         }
 
-        const dx = event.clientX - pointerX;
-        const dy = event.clientY - pointerY;
-        pointerX = event.clientX;
-        pointerY = event.clientY;
+        const dx = localX - pointerX;
+        const dy = localY - pointerY;
+        pointerX = localX;
+        pointerY = localY;
 
-        if (Math.abs(dx) + Math.abs(dy) < 0.8) return;
+        const speed = Math.hypot(dx, dy);
+        if (speed < 2.2) return;
 
-        fluidInstance?.splatAtLocation(
-          event.clientX,
-          event.clientY,
-          dx * 14,
-          dy * 14,
-          '#b8942d'
-        );
+        const radius = Math.min(28, Math.max(12, 12 + speed * 0.12));
+        const strength = Math.min(0.014, Math.max(0.0035, 0.0035 + speed * 0.00014));
+        $container.ripples('drop', localX, localY, radius, strength);
       };
 
       const handlePointerLeave = () => {
         hasPointer = false;
       };
 
-      pointerTarget = container.closest('footer') ?? container;
+      pointerTarget = document.documentElement;
       pointerTarget.addEventListener('pointermove', handlePointerMove, { passive: true });
       pointerTarget.addEventListener('pointerleave', handlePointerLeave);
 
       (container as any).__pointerMove = handlePointerMove;
       (container as any).__pointerLeave = handlePointerLeave;
 
-      ambientSplatTimer = setInterval(() => {
-        if (!disposed) {
-          fluidInstance?.multipleSplats(1);
-        }
-      }, isMobile ? 4500 : 3600);
+      // Occasional larger drops to create visible ring waves like falling water droplets.
+      ambientDropTimer = setInterval(() => {
+        const rect = container.getBoundingClientRect();
+        const x = 24 + Math.random() * Math.max(24, rect.width - 48);
+        const y = 24 + Math.random() * Math.max(24, rect.height - 48);
+        const radius = 26 + Math.random() * 12;
+        const strength = 0.009 + Math.random() * 0.006;
+        $container.ripples('drop', x, y, radius, strength);
+      }, 2600);
 
-      const syncCanvasToFooter = () => {
-        const canvas = container.querySelector('canvas');
-        if (!canvas) return;
-        pinContainerAsBackground(container);
-        canvas.style.position = 'absolute';
-        canvas.style.inset = '0';
-        canvas.style.width = '100%';
-        canvas.style.height = '100%';
-        canvas.style.display = 'block';
-      };
-
-      syncCanvasToFooter();
-
-      const observer = new MutationObserver(() => {
-        syncCanvasToFooter();
+      resizeObserver = new ResizeObserver(() => {
+        $container.ripples('updateSize');
+        styleRippleCanvas();
       });
-
-      observer.observe(container, { childList: true, subtree: true });
-      containerResizeObserver = new ResizeObserver(() => {
-        globalThis.dispatchEvent(new Event('resize'));
-      });
-      containerResizeObserver.observe(container);
-
-      // The library mutates container styles; keep the intended background layout pinned.
-      containerStyleGuard = setInterval(() => {
-        if (!disposed) {
-          pinContainerAsBackground(container);
-        }
-      }, 500);
-
-      (container as any).__fluidObserver = observer;
+      resizeObserver.observe(container);
     };
 
     setup();
 
     return () => {
-      disposed = true;
-      const observer = (containerRef.current as any)?.__fluidObserver as MutationObserver | undefined;
-      observer?.disconnect();
-      containerResizeObserver?.disconnect();
-      if (ambientSplatTimer) {
-        clearInterval(ambientSplatTimer);
-      }
-      if (containerStyleGuard) {
-        clearInterval(containerStyleGuard);
-      }
-      const pointerMove = (containerRef.current as any)?.__pointerMove as ((event: PointerEvent) => void) | undefined;
-      const pointerLeave = (containerRef.current as any)?.__pointerLeave as (() => void) | undefined;
+      destroyed = true;
+      const container = containerRef.current;
+      const pointerMove = (container as any)?.__pointerMove as ((event: PointerEvent) => void) | undefined;
+      const pointerLeave = (container as any)?.__pointerLeave as (() => void) | undefined;
+
       if (pointerTarget && pointerMove && pointerLeave) {
         pointerTarget.removeEventListener('pointermove', pointerMove);
         pointerTarget.removeEventListener('pointerleave', pointerLeave);
       }
-      fluidInstance?.stop();
+
+      if (ambientDropTimer) {
+        clearInterval(ambientDropTimer);
+      }
+
+      resizeObserver?.disconnect();
+
+      if (container && jq) {
+        try {
+          jq(container).ripples('destroy');
+        } catch {
+          // ignore destroy errors during hot reloads
+        }
+      }
     };
   }, []);
 
@@ -175,8 +165,11 @@ const FluidBackground = () => {
         height: '100%',
         zIndex: 2,
         backgroundColor: '#0a0a0a',
+        backgroundImage: `url("${RIPPLE_TEXTURE}")`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         overflow: 'hidden',
-        pointerEvents: 'auto',
+        pointerEvents: 'none',
       }}
     />
   );

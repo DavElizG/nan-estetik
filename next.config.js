@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ['@whatisjery/react-fluid-distortion'],
   // Configuración para optimización de imágenes
   images: {
     remotePatterns: [

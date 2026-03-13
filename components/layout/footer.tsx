@@ -5,14 +5,14 @@
 
 import Link from 'next/link';
 import { Share2, AtSign, Mail, Phone, MapPin } from 'lucide-react';
-import FluidBackground from '../ui/fluid-background';
+import { FluidDistortionBackground } from '../ui/fluid-distortion-background';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative isolate text-white overflow-hidden">
-      <FluidBackground />
+    <footer className="relative isolate text-white overflow-hidden bg-[#070410]">
+      <FluidDistortionBackground />
       {/* Main section */}
       <div className="relative z-10 container-custom px-4 pt-16 pb-10">
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-10">
