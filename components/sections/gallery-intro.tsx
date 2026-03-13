@@ -33,6 +33,7 @@ const SPACER_THREADS = [
 ];
 
 const CREAM = '#fdfbf3';
+const WHITE = '#ffffff';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -59,34 +60,37 @@ export function GalleryIntro() {
         },
       });
 
-      // 1) Zoom — transformOrigin apunta a "Tu Belleza," (texto blanco, ~40% vertical)
-      //    Al zoomear, las letras blancas llenan la pantalla → sensación de "entrar" en el blanco
+      // 1) Zoom — transformOrigin apunta a la "B" de "Belleza"
       tl.to(textRef.current, {
-        scale: 200,
+        scale: 900,
         duration: 1,
         ease: 'power2.in',
       }, 0);
 
-      // 2) Colores del texto cambian a blanco puro gradualmente
-      //    Esto hace que TODO el texto se vuelva blanco antes de desaparecer
+      // 2) Fondo pasa a blanco puro desde el inicio del zoom
+      //    Así los huecos internos de la "B" y el campo de abajo se ven blancos
+      tl.to(sectionRef.current, {
+        backgroundColor: WHITE,
+        duration: 0.3,
+        ease: 'none',
+      }, 0.05);
+
+      // 3) Todo el texto se vuelve blanco para fundirse con el fondo
       tl.to(textRef.current, {
         color: '#ffffff',
         duration: 0.2,
-      }, 0.35);
+      }, 0.25);
 
-      // 3) Fondo transiciona de negro a cream MIENTRAS el texto blanco cubre la pantalla
-      //    El blanco del texto se mezcla con el fondo cream → transición suave
-      tl.to(sectionRef.current, {
-        backgroundColor: CREAM,
-        duration: 0.2,
-        ease: 'none',
-      }, 0.42);
-
-      // 4) Texto se desvanece — a esta escala ya es enorme y el fondo ya es cream
+      // 4) Texto desaparece y fondo pasa de blanco a cream — empalma con la galería
       tl.to(textRef.current, {
         opacity: 0,
         duration: 0.1,
       }, 0.55);
+
+      tl.to(sectionRef.current, {
+        backgroundColor: CREAM,
+        duration: 0.15,
+      }, 0.6);
 
     }, sectionRef);
 
@@ -133,15 +137,15 @@ export function GalleryIntro() {
         <div
           ref={textRef}
           className="relative flex flex-col items-center justify-center text-center leading-none"
-          style={{ zIndex: 10, transformOrigin: '50% 40%' }}
+          style={{ zIndex: 10, transformOrigin: '46% 30%' }}
         >
           <span className="text-[8px] uppercase tracking-[0.4em] text-secondary-500 mb-4">
             Descubre
           </span>
-          <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-white tracking-wide">
+          <span className="font-heading font-bold text-white tracking-wide" style={{ fontSize: 'clamp(2rem, 5vw, 5rem)' }}>
             Tu Belleza,
           </span>
-          <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-black text-primary-500 mt-2">
+          <span className="font-heading font-black text-primary-500 mt-2" style={{ fontSize: 'clamp(2.5rem, 6vw, 6rem)' }}>
             Nuestro Arte
           </span>
           <span className="text-[8px] uppercase tracking-[0.4em] text-secondary-500 mt-4">
