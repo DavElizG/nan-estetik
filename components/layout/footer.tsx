@@ -11,7 +11,7 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative isolate bg-secondary-950 text-white overflow-hidden">
+    <footer className="relative isolate text-white overflow-hidden">
       <FluidBackground />
       {/* Main section */}
       <div className="relative z-10 container-custom px-4 pt-16 pb-10">
@@ -185,7 +185,7 @@ export function Footer() {
       </div>
 
       {/* Copyright bar */}
-      <div className="relative z-10 border-t border-secondary-800/60 bg-secondary-950">
+      <div className="relative z-10 border-t border-secondary-800/60">
         <div className="container-custom px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-secondary-600 text-xs">
           <p>Â© {currentYear} Nan Estetik. Todos los derechos reservados.</p>
           <a
