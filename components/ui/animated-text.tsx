@@ -91,5 +91,6 @@ export function AnimatedText({
     return () => ctx.revert();
   }, [children, delay, stagger, animateOnView]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return <Component ref={textRef as any} className={className}>{children}</Component>;
 }

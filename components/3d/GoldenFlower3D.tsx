@@ -297,6 +297,9 @@ export function GoldenFlower3D({ scrollContainerRef, className = '' }: GoldenFlo
   const animationIdRef = useRef<number>(0);
   const scrollProgressRef = useRef({ value: 0 });
   const timeRef = useRef(0);
+  const lastTimeRef = useRef(performance.now());
+  const isVisibleRef = useRef(true);
+  const petalsRef = useRef<Array<{ mesh: THREE.Mesh; layer: number; index: number }>>([]);
 
   const initScene = useCallback(() => {
     if (!canvasRef.current) return;
@@ -368,6 +371,15 @@ export function GoldenFlower3D({ scrollContainerRef, className = '' }: GoldenFlo
     lotus.scale.setScalar(2.5);
     scene.add(lotus);
 
+    // Cache petal references once — avoids traverse() every frame
+    const petals: Array<{ mesh: THREE.Mesh; layer: number; index: number }> = [];
+    lotus.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.userData.type === 'petal') {
+        petals.push({ mesh: child, layer: child.userData.layer, index: child.userData.index });
+      }
+    });
+    petalsRef.current = petals;
+
     // Golden particles
     const particles = createGoldenParticles();
     particlesRef.current = particles;
@@ -390,49 +402,35 @@ export function GoldenFlower3D({ scrollContainerRef, className = '' }: GoldenFlo
 
   const animate = useCallback(() => {
     if (!sceneRef.current || !cameraRef.current || !rendererRef.current) return;
+    if (!isVisibleRef.current) return;
 
     const progress = scrollProgressRef.current.value;
-    timeRef.current += 0.016;
+
+    // Actual elapsed delta — prevents speed variance at different frame rates
+    const now = performance.now();
+    const delta = Math.min((now - lastTimeRef.current) / 1000, 0.05);
+    lastTimeRef.current = now;
+    timeRef.current += delta;
     const time = timeRef.current;
 
     if (flowerGroupRef.current) {
-      // ============================================
-      // ROTATION – slow auto-rotation + scroll-driven
-      // ============================================
       flowerGroupRef.current.rotation.y = time * 0.04 + progress * Math.PI * 1.5;
-
-      // Keep lotus upright with gentle sway
       flowerGroupRef.current.rotation.x = Math.sin(progress * Math.PI) * 0.06;
       flowerGroupRef.current.rotation.z = Math.cos(progress * Math.PI * 0.5) * 0.03;
 
-      // ============================================
-      // SCALE – gentle pulse with scroll
-      // ============================================
       const scalePulse = Math.sin(progress * Math.PI) * 0.3;
       flowerGroupRef.current.scale.setScalar(2.5 + scalePulse);
 
-      // ============================================
-      // PETAL BREATHING – organic sway per layer
-      // ============================================
-      flowerGroupRef.current.traverse((child) => {
-        if (child instanceof THREE.Mesh && child.userData.type === 'petal') {
-          const { layer, index } = child.userData;
-
-          const speed = 0.25 + layer * 0.08;
-          const phase = index * 0.5 + layer * 1.5;
-          const amplitude = 0.015 + layer * 0.008;
-
-          // Gentle open/close breathing on local X axis
-          child.rotation.x = Math.sin(time * speed + phase) * amplitude;
-          // Subtle lateral sway
-          child.rotation.z = Math.cos(time * speed * 0.7 + phase) * amplitude * 0.4;
-        }
+      // Petal breathing — iterating cached array instead of traverse() over 63 nodes
+      petalsRef.current.forEach(({ mesh, layer, index }) => {
+        const speed = 0.25 + layer * 0.08;
+        const phase = index * 0.5 + layer * 1.5;
+        const amplitude = 0.015 + layer * 0.008;
+        mesh.rotation.x = Math.sin(time * speed + phase) * amplitude;
+        mesh.rotation.z = Math.cos(time * speed * 0.7 + phase) * amplitude * 0.4;
       });
     }
 
-    // ============================================
-    // PARTICLES – slow drift + scroll
-    // ============================================
     if (particlesRef.current) {
       particlesRef.current.rotation.y = time * 0.02 + progress * Math.PI * 0.5;
       particlesRef.current.rotation.x =
@@ -464,9 +462,29 @@ export function GoldenFlower3D({ scrollContainerRef, className = '' }: GoldenFlo
 
     window.addEventListener('resize', handleResize);
 
+    // Pause rendering when canvas is not visible to save GPU/CPU
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const wasVisible = isVisibleRef.current;
+        isVisibleRef.current = entry.isIntersecting;
+        if (entry.isIntersecting && !wasVisible) {
+          lastTimeRef.current = performance.now();
+          animationIdRef.current = requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    if (canvasRef.current) observer.observe(canvasRef.current);
+
     return () => {
       cancelAnimationFrame(animationIdRef.current);
+      observer.disconnect();
       window.removeEventListener('resize', handleResize);
+
+      if (particlesRef.current) {
+        particlesRef.current.geometry.dispose();
+        (particlesRef.current.material as THREE.Material).dispose();
+      }
 
       if (rendererRef.current) {
         rendererRef.current.dispose();

@@ -13,6 +13,7 @@ export function FluidDistortionBackground() {
         width: "100%",
         height: "100%",
         zIndex: 0,
+        filter: "sepia(1) hue-rotate(10deg) saturate(4) brightness(1.2)",
       }}
     >
       <Canvas
@@ -26,14 +27,13 @@ export function FluidDistortionBackground() {
       >
         <EffectComposer>
           <Fluid
-            rainbow
             intensity={3}
             force={2}
             distortion={0.5}
             curl={3}
             swirl={5}
             velocityDissipation={0.99}
-            densitionDissipation={0.95}
+            densityDissipation={0.95}
             pressure={0.8}
             radius={0.3}
             showBackground

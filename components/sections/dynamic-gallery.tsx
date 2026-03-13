@@ -185,20 +185,20 @@ export function DynamicGallery() {
         },
       });
 
-      // Parallax sutil en cada imagen
+      // Parallax — 1 ScrollTrigger shared por todas las imágenes (antes: 18 separados)
       const items = strip.querySelectorAll('.scattered-img');
+      const speeds = [-20, 30, -15, 25, -35, 18, -22, 28, -12, 32, -25, 20, -18, 35, -28, 15, -30];
+      const parallaxTl = gsap.timeline();
       items.forEach((item, i) => {
-        const speeds = [-20, 30, -15, 25, -35, 18, -22, 28, -12, 32, -25, 20, -18, 35, -28, 15, -30];
-        gsap.to(item, {
-          y: speeds[i % speeds.length],
-          ease: 'none',
-          scrollTrigger: {
-            trigger: wrapper,
-            start: 'top top',
-            end: getEndValue,
-            scrub: 2,
-          },
-        });
+        parallaxTl.to(item, { y: speeds[i % speeds.length], ease: 'none' }, 0);
+      });
+      ScrollTrigger.create({
+        animation: parallaxTl,
+        trigger: wrapper,
+        start: 'top top',
+        end: getEndValue,
+        scrub: 2,
+        invalidateOnRefresh: true,
       });
     }, wrapperRef);
 
@@ -221,61 +221,89 @@ export function DynamicGallery() {
       });
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
+    // Batch all getBoundingClientRect reads inside a single rAF tick
+    // to avoid 18 forced reflows per mousemove event.
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    let tiltRafId: number | null = null;
+
+    const applyTilt = () => {
+      tiltRafId = null;
       animators.forEach(({ img, rotateX, rotateY, z }) => {
         const rect = img.getBoundingClientRect();
-        
-        // Verificar si la imagen está visible en el viewport
+
         if (rect.right < 0 || rect.left > window.innerWidth) {
-          rotateX(0);
-          rotateY(0);
-          z(0);
+          rotateX(0); rotateY(0); z(0);
           return;
         }
-        
+
         const imgCenterX = rect.left + rect.width / 2;
         const imgCenterY = rect.top + rect.height / 2;
-        
-        // Posición normalizada del mouse respecto al viewport (-1 a 1)
-        const normalizedX = (e.clientX - imgCenterX) / (rect.width / 2);
-        const normalizedY = (e.clientY - imgCenterY) / (rect.height / 2);
-        
-        // Clampear entre -1 y 1
+        const normalizedX = (lastMouseX - imgCenterX) / (rect.width / 2);
+        const normalizedY = (lastMouseY - imgCenterY) / (rect.height / 2);
         const clampedX = Math.max(-1, Math.min(1, normalizedX));
         const clampedY = Math.max(-1, Math.min(1, normalizedY));
-        
-        // Distancia del mouse al centro (0 a ~1.41)
         const distance = Math.sqrt(clampedX ** 2 + clampedY ** 2);
-        
-        // Radio de efecto: si está dentro de 2.5 veces el tamaño de la imagen
+
         if (distance < 2.5) {
-          // Interpolación suave de intensidad
           const intensity = Math.max(0, 1 - (distance / 2.5));
-          
-          // Rotaciones muy pronunciadas: ±28 grados
           const newRotateX = gsap.utils.interpolate(28, -28, 0.5 + (clampedY * 0.5)) * intensity;
           const newRotateY = gsap.utils.interpolate(-28, 28, 0.5 + (clampedX * 0.5)) * intensity;
-          
-          // Elevación en perspectiva 3D más pronunciada
-          const translateZ = 50 * intensity;
-          
           rotateX(newRotateX);
           rotateY(newRotateY);
-          z(translateZ);
+          z(50 * intensity);
         } else {
-          // Resetear si está fuera de rango
-          rotateX(0);
-          rotateY(0);
-          z(0);
+          rotateX(0); rotateY(0); z(0);
         }
       });
     };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+      if (tiltRafId === null) {
+        tiltRafId = requestAnimationFrame(applyTilt);
+      }
+    };
+
+    // Control play/pause per video based on horizontal scroll position.
+    // IntersectionObserver cannot detect off-screen due to CSS transforms,
+    // so we use ScrollTrigger progress to calculate which videos are in view.
+    const videoEls = Array.from(strip.querySelectorAll<HTMLVideoElement>('video'));
+    let videoST: ReturnType<typeof ScrollTrigger.create> | null = null;
+
+    if (videoEls.length > 0) {
+      videoST = ScrollTrigger.create({
+        trigger: wrapper,
+        start: 'top top',
+        end: getEndValue,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          const maxTranslate = Math.max(1, strip.offsetWidth - window.innerWidth);
+          const currentX = self.progress * maxTranslate;
+          const viewEnd = currentX + window.innerWidth;
+          videoEls.forEach((video) => {
+            const card = video.closest<HTMLElement>('.scattered-img');
+            if (!card) return;
+            const vLeft = card.offsetLeft;
+            const vRight = vLeft + card.offsetWidth;
+            const visible = vLeft < viewEnd && vRight > currentX;
+            if (visible && video.paused) video.play().catch(() => {});
+            else if (!visible && !video.paused) video.pause();
+          });
+        },
+        onLeave: () => videoEls.forEach((v) => v.pause()),
+        onLeaveBack: () => videoEls.forEach((v) => v.pause()),
+      });
+    }
 
     wrapper.addEventListener('mousemove', handleMouseMove);
     wrapper.addEventListener('mouseleave', resetAnimators);
 
     return () => {
       ctx.revert();
+      if (tiltRafId !== null) cancelAnimationFrame(tiltRafId);
+      videoST?.kill();
       wrapper.removeEventListener('mousemove', handleMouseMove);
       wrapper.removeEventListener('mouseleave', resetAnimators);
     };
@@ -491,11 +519,10 @@ export function DynamicGallery() {
                 <video
                   src={img.src}
                   className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500 ease-out"
-                  autoPlay
                   muted
                   loop
                   playsInline
-                  preload="metadata"
+                  preload="none"
                 />
               )}
 
