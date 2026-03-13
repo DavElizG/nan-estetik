@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image from 'next/image';
@@ -60,6 +60,15 @@ interface DynamicGalleryProps {
 export function DynamicGallery({ images, videos }: DynamicGalleryProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   const scatteredImages = useMemo(() => {
     let imgIdx = 0;
@@ -78,6 +87,9 @@ export function DynamicGallery({ images, videos }: DynamicGalleryProps) {
   }, [images, videos]);
 
   useEffect(() => {
+    // Skip GSAP horizontal scroll setup on mobile (mobile uses vertical grid)
+    if (isMobile) return;
+
     const wrapper = wrapperRef.current;
     const strip = stripRef.current;
     if (!wrapper || !strip) return;
@@ -221,7 +233,82 @@ export function DynamicGallery({ images, videos }: DynamicGalleryProps) {
       wrapper.removeEventListener('mousemove', handleMouseMove);
       wrapper.removeEventListener('mouseleave', resetAnimators);
     };
-  }, []);
+  }, [isMobile]);
+
+  // Mobile: vertical grid layout
+  if (isMobile) {
+    // Combine images and videos for mobile grid
+    const mobileItems = scatteredImages.filter(img => img.src);
+    return (
+      <div className="bg-[#fdfbf3] px-4 py-12">
+        <div className="text-center mb-8">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-secondary-900/40 font-semibold block mb-2">
+            Galería
+          </span>
+          <h2 className="font-heading font-black text-3xl text-secondary-900 tracking-tight">
+            Resultados Reales
+          </h2>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {mobileItems.slice(0, 10).map((img, i) => (
+            <div
+              key={`mobile-${i}`}
+              className={`relative overflow-hidden rounded-lg shadow-sm ${
+                i === 0 || i === 5 ? 'col-span-2 aspect-[16/9]' : 'aspect-[3/4]'
+              }`}
+            >
+              {img.type === 'image' ? (
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  fill
+                  className="object-cover"
+                  sizes={i === 0 || i === 5 ? '100vw' : '50vw'}
+                  loading="lazy"
+                />
+              ) : (
+                <video
+                  src={img.src}
+                  className="w-full h-full object-cover"
+                  muted
+                  loop
+                  playsInline
+                  autoPlay
+                  preload="none"
+                />
+              )}
+              {img.label && (
+                <div className="absolute bottom-2 left-2 text-[9px] tracking-[0.1em] text-white/90 font-medium uppercase bg-black/40 backdrop-blur-sm px-2 py-1 rounded">
+                  {img.label}
+                </div>
+              )}
+              {img.type === 'video' && (
+                <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-white/70 flex items-center justify-center">
+                  <div className="w-0 h-0 border-l-[4px] border-l-secondary-900 border-t-[2.5px] border-t-transparent border-b-[2.5px] border-b-transparent ml-0.5" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-center gap-3 mt-8">
+          <a
+            href="#contacto"
+            className="px-5 py-2.5 bg-secondary-900 text-white text-sm font-medium rounded-full hover:bg-secondary-800 transition-colors"
+          >
+            Ver Todo
+          </a>
+          <a
+            href="https://instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-5 py-2.5 bg-secondary-900 text-white text-sm font-medium rounded-full hover:bg-secondary-800 transition-colors"
+          >
+            Descubre +
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

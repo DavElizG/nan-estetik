@@ -14,6 +14,9 @@ export function BackgroundElements() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Skip animations on mobile for performance
+    if (window.matchMedia('(max-width: 768px)').matches) return;
+
     const container = containerRef.current;
     if (!container) return;
 
@@ -46,7 +49,7 @@ export function BackgroundElements() {
   return (
     <div
       ref={containerRef}
-      className="pointer-events-none fixed inset-0 z-[1] overflow-hidden"
+      className="pointer-events-none fixed inset-0 z-[1] overflow-hidden hidden md:block"
       aria-hidden="true"
     >
       {/* Círculos grandes sutiles */}

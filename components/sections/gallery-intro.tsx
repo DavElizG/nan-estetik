@@ -45,6 +45,7 @@ export function GalleryIntro() {
   // Zoom timeline
   useEffect(() => {
     if (globalThis.window === undefined) return;
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
     const ctx = gsap.context(() => {
       ScrollTrigger.refresh();
@@ -54,15 +55,15 @@ export function GalleryIntro() {
           trigger: sectionRef.current,
           pin: true,
           start: 'top top',
-          end: '+=3000',
+          end: isMobile ? '+=1500' : '+=3000',
           scrub: 0.3,
           invalidateOnRefresh: true,
         },
       });
 
-      // 1) Zoom — transformOrigin apunta a la "B" de "Belleza"
+      // 1) Zoom — reduced on mobile for better performance
       tl.to(textRef.current, {
-        scale: 900,
+        scale: isMobile ? 200 : 900,
         duration: 1,
         ease: 'power2.in',
       }, 0);
@@ -97,9 +98,11 @@ export function GalleryIntro() {
     return () => ctx.revert();
   }, []);
 
-  // Animated wave threads
+  // Animated wave threads - skip on mobile for performance
   useEffect(() => {
     if (!spacerSvgRef.current) return;
+    if (window.matchMedia('(max-width: 768px)').matches) return;
+
     let rafId: number;
     const paths = spacerSvgRef.current.querySelectorAll('path');
 
@@ -120,7 +123,7 @@ export function GalleryIntro() {
   return (
     <>
       {/* Espaciador con hilos dorados */}
-      <div className="h-[50vh] bg-black relative overflow-hidden z-30">
+      <div className="h-[25vh] md:h-[50vh] bg-black relative overflow-hidden z-30">
         <svg ref={spacerSvgRef} className="absolute inset-0 w-full h-full opacity-20 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 1440 400">
           {SPACER_THREADS.map((cfg) => (
             <path key={`thread-${cfg.baseY}`} fill="none" stroke="#d4af37" strokeWidth={cfg.sw} />

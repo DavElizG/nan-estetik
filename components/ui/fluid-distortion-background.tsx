@@ -1,10 +1,37 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { EffectComposer } from "@react-three/postprocessing";
 import { Fluid } from "@whatisjery/react-fluid-distortion";
 
 export function FluidDistortionBackground() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  // On mobile, render a simple gradient instead of the heavy Three.js canvas
+  if (isMobile) {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 0,
+          background: "radial-gradient(ellipse at 30% 50%, #0f0a1a 0%, #070410 70%)",
+        }}
+      />
+    );
+  }
+
   return (
     <div
       style={{

@@ -1,5 +1,5 @@
-﻿/**
- * Footer â€” Estilo Luxuria Laser Spa
+/**
+ * Footer - Estilo Luxuria Laser Spa
  * Card redondeada con newsletter + nav | Nombre gigante al fondo
  */
 
@@ -18,13 +18,13 @@ export function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-10">
 
           {/* Left: brand + description + socials + contact */}
-          <div className="flex flex-col justify-between gap-10">
+          <div className="flex flex-col justify-between gap-8">
             <div>
               <p className="text-2xl font-heading font-black mb-4">
                 <span className="text-primary-500">Nan</span> Estetik
               </p>
               <p className="text-secondary-400 text-sm leading-relaxed max-w-[240px]">
-                Centro de estÃ©tica especializado en tratamientos faciales y corporales de vanguardia.
+                {"Centro de est\u00e9tica especializado en tratamientos faciales y corporales de vanguardia."}
               </p>
             </div>
 
@@ -68,16 +68,16 @@ export function Footer() {
           </div>
 
           {/* Right: rounded card with newsletter + nav */}
-          <div className="bg-secondary-900/50 backdrop-blur-sm rounded-[2rem] p-8 md:p-10">
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] gap-8">
+          <div className="bg-secondary-900/50 backdrop-blur-sm rounded-[2rem] p-6 sm:p-8 md:p-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[1fr_auto_auto_auto] gap-6 sm:gap-8">
 
               {/* Newsletter */}
-              <div>
+              <div className="sm:col-span-2 md:col-span-1">
                 <h4 className="text-lg font-heading font-bold text-white mb-1">
-                  Novedades & Promociones
+                  {"Novedades & Promociones"}
                 </h4>
                 <p className="text-secondary-400 text-xs mb-5">
-                  SuscrÃ­bete y recibe ofertas exclusivas
+                  {"Suscr\u00edbete y recibe ofertas exclusivas"}
                 </p>
                 <div className="flex gap-2">
                   <input
@@ -92,12 +92,12 @@ export function Footer() {
               </div>
 
               {/* Columna: Tratamientos */}
-              <div className="min-w-[130px]">
+              <div className="min-w-[120px]">
                 <h5 className="text-[10px] uppercase tracking-[0.2em] text-secondary-500 font-semibold mb-4">
                   Tratamientos
                 </h5>
                 <ul className="space-y-2.5">
-                  {['Relleno Labial', 'ArmonizaciÃ³n', 'Botox', 'Limpieza Facial', 'Radiofrecuencia'].map((t) => (
+                  {['Relleno Labial', 'Armonizaci\u00f3n', 'Botox', 'Limpieza Facial', 'Radiofrecuencia'].map((t) => (
                     <li key={t}>
                       <a href="#servicios" className="text-secondary-400 hover:text-primary-400 text-sm transition-colors">
                         {t}
@@ -107,17 +107,17 @@ export function Footer() {
                 </ul>
               </div>
 
-              {/* Columna: InformaciÃ³n */}
-              <div className="min-w-[120px]">
+              {/* Columna: Informacion */}
+              <div className="min-w-[110px]">
                 <h5 className="text-[10px] uppercase tracking-[0.2em] text-secondary-500 font-semibold mb-4">
-                  InformaciÃ³n
+                  {"Informaci\u00f3n"}
                 </h5>
                 <ul className="space-y-2.5">
                   {[
-                    { label: 'Nosotros',    href: '#nosotros' },
-                    { label: 'GalerÃ­a',     href: '#galeria' },
-                    { label: 'Testimonios', href: '#testimonios' },
-                    { label: 'Contacto',    href: '#contacto' },
+                    { label: 'Nosotros',       href: '#nosotros' },
+                    { label: 'Galer\u00eda',   href: '#galeria' },
+                    { label: 'Testimonios',    href: '#testimonios' },
+                    { label: 'Contacto',       href: '#contacto' },
                   ].map((l) => (
                     <li key={l.label}>
                       <a href={l.href} className="text-secondary-400 hover:text-primary-400 text-sm transition-colors">
@@ -129,7 +129,7 @@ export function Footer() {
               </div>
 
               {/* Columna: Links */}
-              <div className="min-w-[110px]">
+              <div className="min-w-[100px]">
                 <h5 className="text-[10px] uppercase tracking-[0.2em] text-secondary-500 font-semibold mb-4">
                   Links
                 </h5>
@@ -167,7 +167,7 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="px-6 py-2.5 bg-white/5 border border-white/10 rounded-full text-sm text-white hover:border-primary-500/50 hover:text-primary-400 transition-all duration-300"
               >
-                Reserva una cita â†’
+                {"Reserva una cita \u2192"}
               </a>
             </div>
           </div>
@@ -177,8 +177,8 @@ export function Footer() {
       {/* Name giant - same as Luxuria */}
       <div className="relative z-10 overflow-hidden py-4">
         <p
-          className="text-center font-heading font-black text-white/[0.04] tracking-tight leading-none whitespace-nowrap select-none"
-          style={{ fontSize: 'clamp(5rem, 14vw, 16rem)' }}
+          className="text-center font-heading font-black text-white/[0.10] tracking-tight leading-none whitespace-nowrap select-none"
+          style={{ fontSize: 'clamp(3rem, 14vw, 16rem)' }}
         >
           NAN ESTETIK
         </p>
@@ -187,7 +187,7 @@ export function Footer() {
       {/* Copyright bar */}
       <div className="relative z-10 border-t border-secondary-800/60">
         <div className="container-custom px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-secondary-600 text-xs">
-          <p>Â© {currentYear} Nan Estetik. Todos los derechos reservados.</p>
+          <p>{"\u00A9"} {currentYear} Nan Estetik. Todos los derechos reservados.</p>
           <a
             href="https://github.com/DavElizG"
             target="_blank"
@@ -201,5 +201,3 @@ export function Footer() {
     </footer>
   );
 }
-
-

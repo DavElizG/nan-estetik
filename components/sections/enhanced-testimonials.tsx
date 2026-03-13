@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Star } from 'lucide-react';
@@ -76,6 +76,15 @@ const testimonials: Testimonial[] = [
 export function EnhancedTestimonials() {
   const sectionRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -176,6 +185,77 @@ export function EnhancedTestimonials() {
     };
   }, []);
 
+  // Mobile: stacked vertical layout
+  if (isMobile) {
+    return (
+      <section
+        ref={sectionRef}
+        id="testimonios"
+        className="relative bg-primary-50 overflow-hidden py-16 px-4"
+      >
+        {/* Background sutil */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_40%,_rgba(212,175,55,0.08),_transparent_50%)]" />
+        </div>
+
+        <div className="relative mx-auto max-w-md">
+          {/* Título */}
+          <div className="text-center mb-10">
+            <span className="text-xs uppercase tracking-[0.4em] text-primary-600/60 font-semibold mb-3 block">
+              Testimonios
+            </span>
+            <h2 className="text-4xl font-heading font-black leading-[0.9]">
+              <span className="block text-secondary-900/10">Lo Que</span>
+              <span className="block text-primary-500/30">Dicen</span>
+              <span className="block text-secondary-900/10">De Nosotros</span>
+            </h2>
+          </div>
+
+          {/* Cards stacked */}
+          <div ref={containerRef} className="space-y-4">
+            {testimonials.map((t) => (
+              <div
+                key={t.name}
+                className="floating-card"
+              >
+                <div className="bg-white shadow-md border border-primary-200/60 rounded-2xl p-5 hover:shadow-lg transition-shadow duration-300">
+                  {/* Stars */}
+                  <div className="flex gap-0.5 mb-2">
+                    {Array.from({ length: t.rating }, (_, i) => (
+                      <Star
+                        key={`star-${t.name}-${i}`}
+                        className="w-3.5 h-3.5 text-primary-400 fill-primary-400"
+                      />
+                    ))}
+                  </div>
+
+                  {/* Quote */}
+                  <p className="text-secondary-600 text-sm leading-relaxed mb-3">
+                    &ldquo;{t.text}&rdquo;
+                  </p>
+
+                  {/* Author */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-secondary-900 text-sm font-semibold">{t.name}</p>
+                      <p className="text-primary-500/70 text-xs">{t.treatment}</p>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-primary-500/15 border border-primary-400/40 flex items-center justify-center">
+                      <span className="text-primary-600 text-xs font-bold">
+                        {t.name.charAt(0)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Desktop: floating cards layout
   return (
     <section
       ref={sectionRef}
