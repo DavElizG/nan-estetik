@@ -1,9 +1,9 @@
 /**
  * Gallery Intro Section
- * 
+ *
  * Transición tipo zoom ("Tu Belleza, Nuestro Arte")
  * Hilos dorados animados en espaciador
- * Solo zoom + transición a blanco — la galería está en DynamicGallery
+ * Zoom centra en texto blanco → fondo transiciona black→cream → galería
  */
 
 'use client';
@@ -32,12 +32,13 @@ const SPACER_THREADS = [
   { baseY: 300, amp: 10, freq: 3.5, speed: 0.45, sw: '0.5' },
 ];
 
+const CREAM = '#fdfbf3';
+
 gsap.registerPlugin(ScrollTrigger);
 
 export function GalleryIntro() {
   const sectionRef = useRef<HTMLElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
   const spacerSvgRef = useRef<SVGSVGElement>(null);
 
   // Zoom timeline
@@ -53,27 +54,40 @@ export function GalleryIntro() {
           pin: true,
           start: 'top top',
           end: '+=3000',
-          scrub: 0.2,
+          scrub: 0.3,
           invalidateOnRefresh: true,
         },
       });
 
+      // 1) Zoom — transformOrigin apunta a "Tu Belleza," (texto blanco, ~40% vertical)
+      //    Al zoomear, las letras blancas llenan la pantalla → sensación de "entrar" en el blanco
       tl.to(textRef.current, {
-        scale: 80,
-        duration: 0.8,
-        ease: 'power2.inOut',
+        scale: 200,
+        duration: 1,
+        ease: 'power2.in',
       }, 0);
 
+      // 2) Colores del texto cambian a blanco puro gradualmente
+      //    Esto hace que TODO el texto se vuelva blanco antes de desaparecer
+      tl.to(textRef.current, {
+        color: '#ffffff',
+        duration: 0.2,
+      }, 0.35);
+
+      // 3) Fondo transiciona de negro a cream MIENTRAS el texto blanco cubre la pantalla
+      //    El blanco del texto se mezcla con el fondo cream → transición suave
+      tl.to(sectionRef.current, {
+        backgroundColor: CREAM,
+        duration: 0.2,
+        ease: 'none',
+      }, 0.42);
+
+      // 4) Texto se desvanece — a esta escala ya es enorme y el fondo ya es cream
       tl.to(textRef.current, {
         opacity: 0,
-        duration: 0.15,
-      }, 0.75);
+        duration: 0.1,
+      }, 0.55);
 
-      tl.fromTo(contentRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.15 },
-        0.85
-      );
     }, sectionRef);
 
     return () => ctx.revert();
@@ -119,7 +133,7 @@ export function GalleryIntro() {
         <div
           ref={textRef}
           className="relative flex flex-col items-center justify-center text-center leading-none"
-          style={{ zIndex: 10, transformOrigin: 'center center' }}
+          style={{ zIndex: 10, transformOrigin: '50% 40%' }}
         >
           <span className="text-[8px] uppercase tracking-[0.4em] text-secondary-500 mb-4">
             Descubre
@@ -134,13 +148,6 @@ export function GalleryIntro() {
             Ver Resultados
           </span>
         </div>
-
-        {/* White overlay for transition */}
-        <div
-          ref={contentRef}
-          className="absolute inset-0 opacity-0 bg-cream-50"
-          style={{ zIndex: 30 }}
-        />
       </section>
     </>
   );

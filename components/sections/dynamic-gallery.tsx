@@ -312,8 +312,8 @@ export function DynamicGallery() {
   return (
     <div
       ref={wrapperRef}
-      className="relative bg-cream-50 overflow-hidden"
-      style={{ perspective: '1200px' }}
+      className="relative overflow-hidden"
+      style={{ perspective: '1200px', backgroundColor: '#fdfbf3' }}
     >
       {/* Strip con posicionamiento absoluto */}
       <div
