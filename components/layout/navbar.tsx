@@ -27,10 +27,10 @@ export function Navbar() {
     let ticking = false;
 
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const currentScrollY = globalThis.scrollY;
 
       if (!ticking) {
-        window.requestAnimationFrame(() => {
+        globalThis.requestAnimationFrame(() => {
           // Cambiar estilo del navbar al hacer scroll
           setIsScrolled(currentScrollY > 50);
 
@@ -61,8 +61,8 @@ export function Navbar() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    globalThis.addEventListener('scroll', handleScroll, { passive: true });
+    return () => globalThis.removeEventListener('scroll', handleScroll);
   }, []);
 
   const navLinks = [
@@ -90,9 +90,7 @@ export function Navbar() {
             href="/"
             className={clsx(
               'text-xl md:text-2xl font-heading font-bold transition-colors',
-              isDarkMode 
-                ? 'text-white' 
-                : isScrolled ? 'text-secondary-900' : 'text-secondary-900'
+              isDarkMode ? 'text-white' : 'text-secondary-900'
             )}
           >
             <span className="text-primary-500">Nan</span> Estetik
@@ -100,20 +98,27 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className={clsx(
-                  'font-medium transition-colors hover:text-primary-500',
-                  isDarkMode 
-                    ? 'text-gray-200' 
-                    : isScrolled ? 'text-secondary-700' : 'text-secondary-900'
-                )}
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              let linkColor = 'text-secondary-900';
+              if (isDarkMode) {
+                linkColor = 'text-gray-200';
+              } else if (isScrolled) {
+                linkColor = 'text-secondary-700';
+              }
+
+              return (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className={clsx(
+                    'font-medium transition-colors hover:text-primary-500',
+                    linkColor
+                  )}
+                >
+                  {link.label}
+                </a>
+              );
+            })}
             <Link href="/admin" className="btn-primary">
               Área Administrativa
             </Link>

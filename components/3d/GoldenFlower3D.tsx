@@ -16,8 +16,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 interface GoldenFlower3DProps {
-  scrollContainerRef: React.RefObject<HTMLElement | null>;
-  className?: string;
+  readonly scrollContainerRef: React.RefObject<HTMLElement | null>;
+  readonly className?: string;
 }
 
 // ============================================
@@ -218,15 +218,15 @@ function createLotusFlower(): THREE.Group {
   // Config: [count, width, height, lean, curvature, tipCurl, material, yOffset, angleOffset]
   const layers: [number, number, number, number, number, number, THREE.Material, number, number][] = [
     // Inner: 5 petals, narrow, almost vertical, strong bowl
-    [5,  0.10, 0.28, 0.25, 0.8, 0.1, innerMat, 0.01, 0],
+    [5,  0.1, 0.28, 0.25, 0.8, 0.1, innerMat, 0.01, 0],
     // Mid-inner: 7 petals, a bit wider and more open
-    [7,  0.14, 0.34, 0.45, 0.6, 0.2, innerMat, 0.0, Math.PI / 7],
+    [7,  0.14, 0.34, 0.45, 0.6, 0.2, innerMat, 0, Math.PI / 7],
     // Middle: 8 petals, the main visible layer
-    [8,  0.18, 0.40, 0.7, 0.5, 0.35, midMat, -0.01, Math.PI / 8],
+    [8,  0.18, 0.4, 0.7, 0.5, 0.35, midMat, -0.01, Math.PI / 8],
     // Outer: 10 petals, wide open with tip curl
-    [10, 0.22, 0.46, 1.0, 0.35, 0.5, outerMat, -0.03, Math.PI / 10],
+    [10, 0.22, 0.46, 1, 0.35, 0.5, outerMat, -0.03, Math.PI / 10],
     // Base: 7 wide petals, nearly horizontal
-    [7,  0.25, 0.50, 1.25, 0.2, 0.6, baseMat, -0.05, Math.PI / 14],
+    [7,  0.25, 0.5, 1.25, 0.2, 0.6, baseMat, -0.05, Math.PI / 14],
   ];
 
   layers.forEach((cfg, layerIdx) => {

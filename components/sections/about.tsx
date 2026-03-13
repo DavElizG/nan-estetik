@@ -57,11 +57,11 @@ function AnimatedCounter({
   value, 
   suffix = '', 
   isVisible 
-}: { 
+}: Readonly<{ 
   value: number; 
   suffix?: string; 
   isVisible: boolean;
-}) {
+}>) {
   const [count, setCount] = useState(0);
   const countRef = useRef({ value: 0 });
 
@@ -231,7 +231,7 @@ export function About() {
                 
                 <h2 className="section-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-heading font-bold text-white leading-tight mb-6 md:mb-8">
                   Donde la{' '}
-                  <span className="block text-primary-500">Belleza</span>
+                  <span className="block text-primary-500">Belleza</span>{' '}
                   Florece
                 </h2>
                 

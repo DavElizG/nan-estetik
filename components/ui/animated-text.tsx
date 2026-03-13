@@ -28,7 +28,7 @@ export function AnimatedText({
   delay = 0,
   stagger = 0.03,
   animateOnView = true,
-}: AnimatedTextProps) {
+}: Readonly<AnimatedTextProps>) {
   const textRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -91,5 +91,5 @@ export function AnimatedText({
     return () => ctx.revert();
   }, [children, delay, stagger, animateOnView]);
 
-  return <Component ref={textRef as React.RefObject<HTMLElement> | undefined} className={className}>{children}</Component>;
+  return <Component ref={textRef as any} className={className}>{children}</Component>;
 }

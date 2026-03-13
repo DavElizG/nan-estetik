@@ -10,6 +10,7 @@ import { About } from '@/components/sections/about';
 import { GalleryIntro } from '@/components/sections/gallery-intro';
 import { DynamicGallery } from '@/components/sections/dynamic-gallery';
 import { EnhancedTestimonials } from '@/components/sections/enhanced-testimonials';
+import { HorizontalText } from '@/components/sections/horizontal-text';
 import { EnhancedContact } from '@/components/sections/enhanced-contact';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
@@ -32,6 +33,7 @@ export default function HomePage() {
         <GalleryIntro />
         <DynamicGallery />
         <EnhancedTestimonials />
+        <HorizontalText />
         <EnhancedContact />
       </main>
       <Footer />

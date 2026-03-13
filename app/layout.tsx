@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
+import { ScrollProgress } from '@/components/ui/scroll-progress';
 
 /**
  * Configuración de fuentes
@@ -68,7 +69,10 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${inter.variable} ${playfair.variable}`}>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <ScrollProgress />
+          {children}
+        </Providers>
       </body>
     </html>
   );

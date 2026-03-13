@@ -17,7 +17,7 @@ import { Quote, Star } from 'lucide-react';
 gsap.registerPlugin(ScrollTrigger);
 
 export function Testimonials() {
-  const sectionRef = useRef<HTMLSection>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
   const decorativeRef1 = useRef<HTMLDivElement>(null);
   const decorativeRef2 = useRef<HTMLDivElement>(null);
@@ -152,7 +152,7 @@ export function Testimonials() {
         const clampedY = Math.max(-1, Math.min(1, normalizedY));
         
         // Distancia del mouse al centro (0 a ~1.41)
-        const distance = Math.sqrt(clampedX ** 2 + clampedY ** 2);
+        const distance = Math.hypot(clampedX, clampedY);
         
         // Radio de efecto: si está dentro de 2.5 veces el tamaño de la card
         if (distance < 2.5) {
@@ -259,7 +259,7 @@ export function Testimonials() {
                 <div className="flex gap-1">
                   {Array.from({ length: testimonial.rating }).map((_, i) => (
                     <Star
-                      key={i}
+                      key={`${testimonial.name}-star-${i}`}
                       className="text-yellow-400 fill-yellow-400"
                       size={18}
                     />

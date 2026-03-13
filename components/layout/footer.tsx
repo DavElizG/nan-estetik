@@ -5,18 +5,19 @@
 
 import Link from 'next/link';
 import { Share2, AtSign, Mail, Phone, MapPin } from 'lucide-react';
+import FluidBackground from '../ui/fluid-background';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-secondary-950 text-white overflow-hidden">
-
-      {/* â”€â”€ SecciÃ³n principal â”€â”€ */}
-      <div className="container-custom px-4 pt-16 pb-10">
+    <footer className="relative isolate bg-secondary-950 text-white overflow-hidden">
+      <FluidBackground />
+      {/* Main section */}
+      <div className="relative z-10 container-custom px-4 pt-16 pb-10">
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-10">
 
-          {/* Izquierda: marca + descripciÃ³n + sociales + contacto */}
+          {/* Left: brand + description + socials + contact */}
           <div className="flex flex-col justify-between gap-10">
             <div>
               <p className="text-2xl font-heading font-black mb-4">
@@ -27,7 +28,7 @@ export function Footer() {
               </p>
             </div>
 
-            {/* Redes sociales */}
+            {/* Socials */}
             <div className="flex gap-4">
               <a
                 href="https://facebook.com"
@@ -49,7 +50,7 @@ export function Footer() {
               </a>
             </div>
 
-            {/* Datos de contacto */}
+            {/* Contact info */}
             <div className="space-y-2 text-sm text-secondary-500">
               <p className="flex items-center gap-2">
                 <Mail size={13} className="text-primary-500/70" />
@@ -66,8 +67,8 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Derecha: card redondeada con newsletter + nav */}
-          <div className="bg-secondary-900 rounded-[2rem] p-8 md:p-10">
+          {/* Right: rounded card with newsletter + nav */}
+          <div className="bg-secondary-900/50 backdrop-blur-sm rounded-[2rem] p-8 md:p-10">
             <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] gap-8">
 
               {/* Newsletter */}
@@ -173,8 +174,8 @@ export function Footer() {
         </div>
       </div>
 
-      {/* â”€â”€ Nombre gigante â€” igual que Luxuria â”€â”€ */}
-      <div className="overflow-hidden py-4">
+      {/* Name giant - same as Luxuria */}
+      <div className="relative z-10 overflow-hidden py-4">
         <p
           className="text-center font-heading font-black text-white/[0.04] tracking-tight leading-none whitespace-nowrap select-none"
           style={{ fontSize: 'clamp(5rem, 14vw, 16rem)' }}
@@ -183,8 +184,8 @@ export function Footer() {
         </p>
       </div>
 
-      {/* â”€â”€ Barra de copyright â”€â”€ */}
-      <div className="border-t border-secondary-800/60">
+      {/* Copyright bar */}
+      <div className="relative z-10 border-t border-secondary-800/60 bg-secondary-950">
         <div className="container-custom px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-secondary-600 text-xs">
           <p>Â© {currentYear} Nan Estetik. Todos los derechos reservados.</p>
           <a
