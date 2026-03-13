@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image from 'next/image';
@@ -52,45 +52,32 @@ const layoutTemplate: Omit<ScatteredImage, 'src'>[] = [
   { alt: 'Arte estético',            type: 'image', left: '480vw', top: '10%', width: '16vw', height: '36%', label: 'RADIOFRECUENCIA' },
 ];
 
-export function DynamicGallery() {
+interface DynamicGalleryProps {
+  images: { url: string }[];
+  videos: { url: string }[];
+}
+
+export function DynamicGallery({ images, videos }: DynamicGalleryProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
-  const [scatteredImages, setScatteredImages] = useState<ScatteredImage[]>([]);
 
-  // Carga imágenes y videos desde Cloudinary
-  useEffect(() => {
-    async function loadMedia() {
-      const [imgRes, vidRes] = await Promise.all([
-        fetch('/api/gallery').then(r => r.json()).catch(() => ({ data: [] })),
-        fetch('/api/gallery?type=video').then(r => r.json()).catch(() => ({ data: [] })),
-      ]);
-
-      const cloudImages: { url: string }[] = imgRes.data || [];
-      const cloudVideos: { url: string }[] = vidRes.data || [];
-
-      let imgIdx = 0;
-      let vidIdx = 0;
-
-      const mapped = layoutTemplate.map(item => {
-        if (item.type === 'video') {
-          const src = cloudVideos[vidIdx]?.url || '';
-          vidIdx++;
-          return { ...item, src };
-        } else {
-          const src = cloudImages[imgIdx]?.url || '';
-          imgIdx++;
-          return { ...item, src };
-        }
-      });
-
-      setScatteredImages(mapped);
-    }
-
-    loadMedia();
-  }, []);
+  const scatteredImages = useMemo(() => {
+    let imgIdx = 0;
+    let vidIdx = 0;
+    return layoutTemplate.map(item => {
+      if (item.type === 'video') {
+        const src = videos[vidIdx]?.url || '';
+        vidIdx++;
+        return { ...item, src };
+      } else {
+        const src = images[imgIdx]?.url || '';
+        imgIdx++;
+        return { ...item, src };
+      }
+    });
+  }, [images, videos]);
 
   useEffect(() => {
-    if (scatteredImages.length === 0) return;
     const wrapper = wrapperRef.current;
     const strip = stripRef.current;
     if (!wrapper || !strip) return;
@@ -234,7 +221,7 @@ export function DynamicGallery() {
       wrapper.removeEventListener('mousemove', handleMouseMove);
       wrapper.removeEventListener('mouseleave', resetAnimators);
     };
-  }, [scatteredImages]);
+  }, []);
 
   return (
     <div
